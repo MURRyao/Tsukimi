@@ -18,10 +18,6 @@ struct BagEndShelfView: View {
         self.closeAction = closeAction
     }
 
-    private var visibleItems: [ScreenshotItem] {
-        Array(repository.items.prefix(10))
-    }
-
     var body: some View {
         ZStack(alignment: .top) {
             RoundedRectangle(cornerRadius: BagEndDesign.Shelf.cornerRadius, style: .continuous)
@@ -56,21 +52,24 @@ struct BagEndShelfView: View {
                     closeAction: closeAction
                 )
 
-                if visibleItems.isEmpty {
+                if repository.items.isEmpty {
                     EmptyShelfView(captureAction: appState.captureArea)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    ScreenshotGridView(
-                        items: visibleItems,
-                        repository: repository
-                    )
+                    ScrollView(.vertical, showsIndicators: true) {
+                        ScreenshotGridView(
+                            items: repository.items,
+                            repository: repository
+                        )
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.trailing, -10)
                 }
-
-                Spacer(minLength: 0)
             }
             .padding(.horizontal, BagEndDesign.Shelf.outerPadding)
             .padding(.top, 18)
             .padding(.bottom, 22)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
             Capsule(style: .continuous)
                 .fill(.white.opacity(0.14))
@@ -106,8 +105,7 @@ private struct ShelfHeaderView: View {
             Spacer(minLength: 24)
 
             ShelfButton("Capture Area", width: BagEndDesign.Control.captureWidth, prominent: true, action: captureAction)
-            ShelfButton("Clear All", width: BagEndDesign.Control.clearAllWidth, action: clearAction)
-            ShelfButton("Pin Mode", width: BagEndDesign.Control.pinModeWidth, action: {})
+            ShelfButton("Clear Unpinned", width: BagEndDesign.Control.clearUnpinnedWidth, action: clearAction)
             Button(action: closeAction) {
                 Image(systemName: "chevron.up")
                     .font(.system(size: 12, weight: .bold))
@@ -183,12 +181,16 @@ private struct ScreenshotGridView: View {
     @ObservedObject var repository: ScreenshotRepository
 
     private let columns = Array(
-        repeating: GridItem(.fixed(BagEndDesign.Card.width), spacing: 18),
+        repeating: GridItem(
+            .flexible(minimum: BagEndDesign.Card.width, maximum: .infinity),
+            spacing: BagEndDesign.Card.spacing,
+            alignment: .center
+        ),
         count: 5
     )
 
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .leading, spacing: 30) {
+        LazyVGrid(columns: columns, alignment: .center, spacing: BagEndDesign.Card.rowSpacing) {
             ForEach(items) { item in
                 ScreenshotCardView(
                     item: item,
@@ -204,7 +206,7 @@ private struct ScreenshotGridView: View {
                 )
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding(.top, 4)
     }
 }

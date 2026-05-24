@@ -43,14 +43,14 @@ enum BagEndDesign {
         static let thumbnailHeight: CGFloat = 72
         static let thumbnailCornerRadius: CGFloat = 9
         static let spacing: CGFloat = 18
+        static let rowSpacing: CGFloat = 30
     }
 
     enum Control {
         static let height: CGFloat = 28
         static let cornerRadius: CGFloat = 14
         static let captureWidth: CGFloat = 116
-        static let clearAllWidth: CGFloat = 82
-        static let pinModeWidth: CGFloat = 86
+        static let clearUnpinnedWidth: CGFloat = 122
     }
 }
 
