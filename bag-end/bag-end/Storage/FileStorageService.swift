@@ -33,11 +33,17 @@ struct FileStorageService {
         return screenshotsDirectory.appendingPathComponent("bag-end-\(safeDate)-\(id.uuidString).png")
     }
 
-    func metadata(for fileURL: URL, id: UUID = UUID(), now: Date, lifetime: TimeInterval) throws -> ScreenshotItem {
+    func metadata(
+        for fileURL: URL,
+        id: UUID = UUID(),
+        now: Date,
+        lifetime: TimeInterval,
+        captureResult: ScreenCaptureResult? = nil
+    ) throws -> ScreenshotItem {
         let attributes = try FileManager.default.attributesOfItem(atPath: fileURL.path)
         let fileSize = (attributes[.size] as? NSNumber)?.intValue ?? 0
         let image = NSImage(contentsOf: fileURL)
-        let pixelSize = image?.pixelSize ?? .zero
+        let pixelSize = captureResult?.pixelSize ?? image?.pixelSize ?? .zero
 
         return ScreenshotItem(
             id: id,
@@ -46,6 +52,9 @@ struct FileStorageService {
             width: Int(pixelSize.width),
             height: Int(pixelSize.height),
             fileSizeBytes: fileSize,
+            captureBackend: captureResult?.backend,
+            captureScale: captureResult.map { Double($0.scale) },
+            displayIDs: captureResult?.displayIDs,
             isPinned: false,
             expiresAt: now.addingTimeInterval(lifetime),
             lastDraggedAt: nil

@@ -49,6 +49,18 @@ final class ScreenshotRepository: ObservableObject {
         try save()
     }
 
+    func addCapturedScreenshot(_ captureResult: ScreenCaptureResult) throws {
+        let item = try storage.metadata(
+            for: captureResult.fileURL,
+            now: now(),
+            lifetime: settings.unpinnedLifetime,
+            captureResult: captureResult
+        )
+        items.insert(item, at: 0)
+        try enforceMaxUnpinnedCount()
+        try save()
+    }
+
     func delete(_ item: ScreenshotItem) throws {
         items.removeAll { $0.id == item.id }
         try? FileManager.default.removeItem(at: item.fileURL)

@@ -7,6 +7,9 @@ struct ScreenshotItem: Identifiable, Codable, Equatable {
     var width: Int
     var height: Int
     var fileSizeBytes: Int
+    var captureBackend: CaptureBackend?
+    var captureScale: Double?
+    var displayIDs: [UInt32]?
     var isPinned: Bool
     var expiresAt: Date?
     var lastDraggedAt: Date?

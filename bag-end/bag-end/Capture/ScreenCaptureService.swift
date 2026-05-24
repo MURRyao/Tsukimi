@@ -1,8 +1,23 @@
 import CoreGraphics
 import Foundation
+import ImageIO
 
 protocol ScreenCaptureService {
-    func captureArea() async throws -> URL
+    func captureArea() async throws -> ScreenCaptureResult
+}
+
+enum CaptureBackend: String, Codable, Equatable {
+    case native
+    case screencaptureCLI = "screencapture-cli"
+}
+
+struct ScreenCaptureResult: Equatable {
+    let fileURL: URL
+    let backend: CaptureBackend
+    let pixelSize: CGSize
+    let scale: CGFloat
+    let displayIDs: [CGDirectDisplayID]
+    let selectedRect: CGRect?
 }
 
 enum ScreenCaptureError: Error, Equatable {
@@ -10,6 +25,7 @@ enum ScreenCaptureError: Error, Equatable {
     case failed(Int32)
     case missingOutput
     case couldNotLaunch
+    case nativeCaptureFailed
     case screenRecordingPermissionRequired
 }
 
@@ -20,7 +36,7 @@ struct ScreencaptureScreenCaptureService: ScreenCaptureService {
         self.storage = storage
     }
 
-    func captureArea() async throws -> URL {
+    func captureArea() async throws -> ScreenCaptureResult {
         guard CGPreflightScreenCaptureAccess() else {
             throw ScreenCaptureError.screenRecordingPermissionRequired
         }
@@ -36,7 +52,17 @@ struct ScreencaptureScreenCaptureService: ScreenCaptureService {
                 let status = process.terminationStatus
 
                 if status == 0, FileManager.default.fileExists(atPath: outputURL.path) {
-                    continuation.resume(returning: outputURL)
+                    let image = CGImageSourceCreateWithURL(outputURL as CFURL, nil)
+                        .flatMap { CGImageSourceCreateImageAtIndex($0, 0, nil) }
+                    let pixelSize = image.map { CGSize(width: $0.width, height: $0.height) } ?? .zero
+                    continuation.resume(returning: ScreenCaptureResult(
+                        fileURL: outputURL,
+                        backend: .screencaptureCLI,
+                        pixelSize: pixelSize,
+                        scale: 1,
+                        displayIDs: [],
+                        selectedRect: nil
+                    ))
                 } else if status == 0 {
                     continuation.resume(throwing: ScreenCaptureError.missingOutput)
                 } else if !FileManager.default.fileExists(atPath: outputURL.path) {

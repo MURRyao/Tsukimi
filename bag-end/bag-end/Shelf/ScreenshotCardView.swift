@@ -93,7 +93,9 @@ struct ScreenshotCardView: View {
             return "file URL + PNG"
         }
 
-        return "PNG · \(relativeAge)"
+        let dimensions = item.width > 0 && item.height > 0 ? "\(item.width)x\(item.height)" : "PNG"
+        let backend = item.captureBackend?.rawValue ?? "legacy"
+        return "\(dimensions) · \(backend) · \(relativeAge)"
     }
 
     private var relativeAge: String {

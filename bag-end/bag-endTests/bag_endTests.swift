@@ -38,12 +38,77 @@ struct bag_endTests {
         #expect(item.fileSizeBytes > 0)
         #expect(item.width > 0)
         #expect(item.height > 0)
+        #expect(item.captureBackend == nil)
+        #expect(item.captureScale == nil)
+        #expect(item.displayIDs == nil)
         #expect(item.isPinned == false)
         #expect(item.expiresAt == Date(timeIntervalSince1970: 100 + 24 * 60 * 60))
 
         let reloaded = fixture.makeRepository(now: Date(timeIntervalSince1970: 200))
         try reloaded.load()
         #expect(reloaded.items == fixture.repository.items)
+    }
+
+    @Test func addCaptureResultPersistsNativeMetadataAndReloads() async throws {
+        let fixture = try makeRepositoryFixture(now: Date(timeIntervalSince1970: 100))
+        let imageURL = try makePNG(in: fixture.rootURL)
+        let result = ScreenCaptureResult(
+            fileURL: imageURL,
+            backend: .native,
+            pixelSize: CGSize(width: 128, height: 64),
+            scale: 2,
+            displayIDs: [42, 99],
+            selectedRect: CGRect(x: 10, y: 20, width: 64, height: 32)
+        )
+
+        try fixture.repository.load()
+        try fixture.repository.addCapturedScreenshot(result)
+
+        let item = try #require(fixture.repository.items.first)
+        #expect(item.filePath == imageURL.path)
+        #expect(item.width == 128)
+        #expect(item.height == 64)
+        #expect(item.captureBackend == .native)
+        #expect(item.captureScale == 2)
+        #expect(item.displayIDs == [42, 99])
+
+        let reloaded = fixture.makeRepository(now: Date(timeIntervalSince1970: 200))
+        try reloaded.load()
+        #expect(reloaded.items == fixture.repository.items)
+    }
+
+    @Test func legacyManifestWithoutCaptureMetadataStillLoads() async throws {
+        let fixture = try makeRepositoryFixture()
+        let imageURL = try makePNG(in: fixture.rootURL)
+        let id = UUID()
+
+        try fixture.storage.prepareDirectories()
+        let manifest = """
+        {
+          "items": [
+            {
+              "id": "\(id.uuidString)",
+              "filePath": "\(imageURL.path)",
+              "createdAt": "1970-01-01T00:00:00Z",
+              "width": 20,
+              "height": 12,
+              "fileSizeBytes": 100,
+              "isPinned": false,
+              "expiresAt": null,
+              "lastDraggedAt": null
+            }
+          ]
+        }
+        """
+        try Data(manifest.utf8).write(to: fixture.storage.manifestURL)
+
+        try fixture.repository.load()
+
+        let item = try #require(fixture.repository.items.first)
+        #expect(item.id == id)
+        #expect(item.captureBackend == nil)
+        #expect(item.captureScale == nil)
+        #expect(item.displayIDs == nil)
     }
 
     @Test func deleteRemovesEntryAndFile() async throws {

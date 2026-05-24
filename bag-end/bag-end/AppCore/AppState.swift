@@ -25,7 +25,10 @@ final class AppState: ObservableObject {
     ) {
         self.settings = settings
         self.repository = ScreenshotRepository(storage: storage, settings: settings)
-        self.captureService = ScreencaptureScreenCaptureService(storage: storage)
+        self.captureService = NativeScreenCaptureService(
+            storage: storage,
+            fallback: ScreencaptureScreenCaptureService(storage: storage)
+        )
     }
 
     func start() {
@@ -44,10 +47,10 @@ final class AppState: ObservableObject {
             do {
                 hideShelf()
                 try? await Task.sleep(for: .milliseconds(180))
-                let fileURL = try await captureService.captureArea()
-                try repository.addCapturedScreenshot(at: fileURL)
+                let captureResult = try await captureService.captureArea()
+                try repository.addCapturedScreenshot(captureResult)
                 if settings.copyImageOnCapture {
-                    DragItemProvider.copyImageToPasteboard(for: fileURL)
+                    DragItemProvider.copyImageToPasteboard(for: captureResult.fileURL)
                 }
                 if settings.showShelfAfterCapture {
                     showShelf()
@@ -164,6 +167,8 @@ enum BagEndErrorMessage {
                 return "Screen capture did not create an image. Try again or check Screen Recording permission."
             case .couldNotLaunch:
                 return "Bag End could not start macOS screencapture."
+            case .nativeCaptureFailed:
+                return "Bag End could not capture the selected region. Try again, or check Screen Recording permission in System Settings."
             case .screenRecordingPermissionRequired:
                 return "Bag End needs Screen Recording permission. Enable Bag End in System Settings > Privacy & Security > Screen & System Audio Recording, then fully quit and relaunch the app from Xcode so macOS reloads the permission."
             }

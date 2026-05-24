@@ -222,7 +222,7 @@ private struct EmptyShelfView: View {
 
             Text("Press the capture hotkey. New screenshots stay off Desktop and appear here temporarily.")
                 .font(.system(size: 13))
-                .foregroundStyle(BagEndDesign.ColorToken.textSecondary)
+                .foregroundStyle(.white.opacity(0.56))
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 420)
 
