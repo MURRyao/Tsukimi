@@ -43,8 +43,11 @@ private struct GeneralSettingsView: View {
 private struct ShortcutSettingsView: View {
     var body: some View {
         Form {
-            LabeledContent("Capture Area Hotkey", value: "Menu item for MVP")
-            Text("Configurable global hotkeys are deferred until the capture-to-drag loop is stable.")
+            ForEach(BagEndShortcut.allCases) { shortcut in
+                LabeledContent(shortcut.title, value: shortcut.symbolicDisplayName)
+            }
+
+            Text("Global shortcuts are fixed for 0.2. Configurable hotkeys are planned for 0.5.")
                 .foregroundStyle(BagEndDesign.ColorToken.textSecondary)
         }
         .formStyle(.grouped)

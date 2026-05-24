@@ -6,19 +6,22 @@ import UniformTypeIdentifiers
 @MainActor
 final class NotchHostWindowController {
     private let appState: AppState
+    private let presentationChanged: (Bool) -> Void
     private let model = NotchHostModel()
     private var panel: NSPanel?
     private var localMouseDownMonitor: Any?
     private var globalMouseDownMonitor: Any?
 
-    init(appState: AppState) {
+    init(appState: AppState, presentationChanged: @escaping (Bool) -> Void = { _ in }) {
         self.appState = appState
+        self.presentationChanged = presentationChanged
     }
 
     func showHandle() {
         let panel = panel ?? makePanel()
         self.panel = panel
         model.presentation = .closed
+        presentationChanged(false)
         applyFrame(expanded: false, animate: false)
         panel.orderFrontRegardless()
     }
@@ -36,12 +39,14 @@ final class NotchHostWindowController {
 
     private func expand() {
         model.presentation = .expanded
+        presentationChanged(true)
         applyFrame(expanded: true, animate: true)
         installOutsideClickMonitors()
     }
 
     private func collapse() {
         model.presentation = .closed
+        presentationChanged(false)
         removeOutsideClickMonitors()
         applyFrame(expanded: false, animate: true)
         panel?.orderFrontRegardless()

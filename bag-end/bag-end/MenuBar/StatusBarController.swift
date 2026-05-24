@@ -22,8 +22,8 @@ final class StatusBarController: NSObject {
 
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Capture Area", action: #selector(captureArea), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Show Shelf", action: #selector(showShelf), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Clear All", action: #selector(clearAll), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Show/Hide Shelf", action: #selector(toggleShelf), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Clear Unpinned", action: #selector(clearUnpinned), keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Preferences...", action: #selector(showPreferences), keyEquivalent: ","))
         menu.addItem(.separator())
@@ -40,11 +40,11 @@ final class StatusBarController: NSObject {
         appState.captureArea()
     }
 
-    @objc private func showShelf() {
-        appState.showShelf()
+    @objc private func toggleShelf() {
+        appState.toggleShelf()
     }
 
-    @objc private func clearAll() {
+    @objc private func clearUnpinned() {
         appState.clearUnpinnedScreenshots()
     }
 

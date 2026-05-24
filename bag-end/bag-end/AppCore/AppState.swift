@@ -8,7 +8,15 @@ final class AppState: ObservableObject {
     @Published var lastErrorMessage: String?
 
     private let captureService: ScreenCaptureService
-    private lazy var notchHostWindowController = NotchHostWindowController(appState: self)
+    private let hotKeyService = GlobalHotKeyService()
+    private lazy var notchHostWindowController = NotchHostWindowController(
+        appState: self,
+        presentationChanged: { [weak self] isExpanded in
+            self?.isShelfExpanded = isExpanded
+        }
+    )
+    private var isShelfExpanded = false
+    private var autoHideTask: Task<Void, Never>?
     private var cancellables: Set<AnyCancellable> = []
 
     init(
@@ -24,6 +32,7 @@ final class AppState: ObservableObject {
         do {
             try repository.load()
             try repository.cleanupExpired()
+            try registerHotKeys()
             showNotchHandle()
         } catch {
             presentError(error)
@@ -56,11 +65,21 @@ final class AppState: ObservableObject {
         scheduleAutoHideIfNeeded()
     }
 
+    func toggleShelf() {
+        if isShelfExpanded {
+            hideShelf()
+        } else {
+            showShelf()
+        }
+    }
+
     func showNotchHandle() {
         notchHostWindowController.showHandle()
     }
 
     func hideShelf() {
+        autoHideTask?.cancel()
+        autoHideTask = nil
         notchHostWindowController.hide()
     }
 
@@ -106,15 +125,30 @@ final class AppState: ObservableObject {
     }
 
     private func scheduleAutoHideIfNeeded() {
+        autoHideTask?.cancel()
+        autoHideTask = nil
+
         guard settings.autoHideShelf else { return }
         let delay = settings.autoHideDelay
 
-        Task { [weak self] in
+        autoHideTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(delay))
+            guard !Task.isCancelled else { return }
             await MainActor.run {
                 self?.hideShelf()
             }
         }
+    }
+
+    private func registerHotKeys() throws {
+        try hotKeyService.start(registrations: [
+            GlobalHotKeyRegistration(shortcut: .captureArea) { [weak self] in
+                self?.captureArea()
+            },
+            GlobalHotKeyRegistration(shortcut: .toggleShelf) { [weak self] in
+                self?.toggleShelf()
+            }
+        ])
     }
 }
 
@@ -132,6 +166,15 @@ enum BagEndErrorMessage {
                 return "Bag End could not start macOS screencapture."
             case .screenRecordingPermissionRequired:
                 return "Bag End needs Screen Recording permission. Enable Bag End in System Settings > Privacy & Security > Screen & System Audio Recording, then fully quit and relaunch the app from Xcode so macOS reloads the permission."
+            }
+        }
+
+        if let hotKeyError = error as? GlobalHotKeyError {
+            switch hotKeyError {
+            case .handlerInstallFailed(let status):
+                return "Bag End could not install the global hotkey handler. macOS returned status \(status)."
+            case .registrationFailed(let shortcut, let status):
+                return "Bag End could not register \(shortcut.symbolicDisplayName) for \(shortcut.title). Another app may already use it. macOS returned status \(status)."
             }
         }
 

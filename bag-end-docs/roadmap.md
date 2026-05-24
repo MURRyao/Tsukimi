@@ -39,7 +39,7 @@ No screenshot is created on Desktop
 
 Notes:
 
-- UI quality is not important yet.
+- UI quality is important.
 - Capture implementation may be temporary.
 - The goal is to validate the workflow.
 
