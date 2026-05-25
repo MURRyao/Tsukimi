@@ -160,7 +160,7 @@ CaptureCoordinator
 ShelfWindowController
 ```
 
-Existing Swift symbols may still carry `BagEnd` prefixes during the rename migration. Prefer `Tsukimi` for new user-facing strings and new top-level app concepts.
+Use `Tsukimi` consistently for user-facing strings, Swift symbols, targets, modules, and project paths.
 
 ## File organization
 

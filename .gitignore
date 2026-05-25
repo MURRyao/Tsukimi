@@ -1,8 +1,14 @@
+# macOS Finder metadata
 .DS_Store
+
+# Xcode build output
 DerivedData/
 build/
+
+# Xcode local user state
 *.xcuserstate
-*.xcuserdata/
 *.moved-aside
-*.xccheckout
-*.xcscmblueprint
+
+# Xcode user-specific project/workspace settings
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
