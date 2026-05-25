@@ -1,10 +1,10 @@
-# Bag End — SwiftUI Design Handoff
+# Tsukimi — SwiftUI Design Handoff
 
 This document captures the current product mockup direction so it can be recreated in SwiftUI/AppKit without depending on Figma access.
 
 ## Design Direction
 
-Bag End should feel like a small native macOS utility: quiet, translucent, fast, and local-first. The visual identity should use a restrained green palette to match the product name without turning the app into a decorative fantasy theme.
+Tsukimi should feel like a small native macOS utility: quiet, translucent, fast, and local-first. The visual identity should use a restrained green palette to match the product name without turning the app into a decorative fantasy theme.
 
 Core mood:
 
@@ -29,7 +29,7 @@ Cloud/account language in MVP
 
 ## Primary Screen
 
-The primary preview is a macOS desktop scene with a translucent Bag End shelf dropping from the notch/top-center area.
+The primary preview is a macOS desktop scene with a translucent Tsukimi shelf dropping from the notch/top-center area.
 
 Canvas reference:
 
@@ -78,7 +78,7 @@ The expanded shelf contains:
 ```text
 Top row
 - 34 x 34 app icon
-- Title: "Bag End"
+- Title: "Tsukimi"
 - Subtitle: "18 screenshots · temporary shelf · local only"
 - Capture Area button
 - Clear All button
@@ -194,7 +194,7 @@ When no screenshots are available, keep the shelf compact and useful.
 Content:
 
 ```text
-Title: "No screenshots in Bag End"
+Title: "No screenshots in Tsukimi"
 Subtitle: "Press the capture hotkey. New screenshots stay off Desktop and appear here temporarily."
 Primary action: "Capture Area"
 ```

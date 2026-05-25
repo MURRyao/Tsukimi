@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import Testing
+import UniformTypeIdentifiers
 @testable import bag_end
 
 @MainActor
@@ -75,6 +76,52 @@ struct bag_endTests {
         let reloaded = fixture.makeRepository(now: Date(timeIntervalSince1970: 200))
         try reloaded.load()
         #expect(reloaded.items == fixture.repository.items)
+    }
+
+    @Test func screenshotFilenamesUseTsukimiPrefix() async throws {
+        let fixture = try makeRepositoryFixture()
+
+        let fileURL = try fixture.storage.makeScreenshotFileURL()
+
+        #expect(fileURL.lastPathComponent.hasPrefix("\(AppBrand.screenshotFilenamePrefix)-"))
+    }
+
+    @Test func storageMigratesLegacyBagEndDirectoryWhenTsukimiDirectoryIsAbsent() async throws {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("TsukimiMigrationTests-\(UUID().uuidString)", isDirectory: true)
+        let legacyURL = rootURL.appendingPathComponent(AppBrand.legacyStorageDirectoryName, isDirectory: true)
+        let tsukimiURL = rootURL.appendingPathComponent(AppBrand.storageDirectoryName, isDirectory: true)
+        let legacyScreenshotsURL = legacyURL.appendingPathComponent("screenshots", isDirectory: true)
+
+        try FileManager.default.createDirectory(at: legacyScreenshotsURL, withIntermediateDirectories: true)
+        let legacyImageURL = legacyScreenshotsURL.appendingPathComponent("legacy.png")
+        try Data([0x89, 0x50, 0x4E, 0x47]).write(to: legacyImageURL)
+
+        let storage = FileStorageService(applicationSupportURL: tsukimiURL, legacyApplicationSupportURL: legacyURL)
+
+        try storage.prepareDirectories()
+
+        #expect(FileManager.default.fileExists(atPath: tsukimiURL.path))
+        #expect(FileManager.default.fileExists(atPath: legacyURL.path) == false)
+        #expect(FileManager.default.fileExists(atPath: tsukimiURL.appendingPathComponent("screenshots/legacy.png").path))
+    }
+
+    @Test func dragProviderExposesFileURLAndImageRepresentations() async throws {
+        let fixture = try makeRepositoryFixture()
+        let imageURL = try makePNG(in: fixture.rootURL)
+        let item = try fixture.storage.metadata(
+            for: imageURL,
+            now: Date(timeIntervalSince1970: 100),
+            lifetime: 60
+        )
+
+        let provider = DragItemProvider.provider(for: item)
+        let identifiers = Set(provider.registeredTypeIdentifiers)
+
+        #expect(identifiers.contains(UTType.fileURL.identifier))
+        #expect(identifiers.contains(UTType.png.identifier))
+        #expect(identifiers.contains(UTType.image.identifier))
+        #expect(identifiers.contains(UTType.tiff.identifier))
     }
 
     @Test func legacyManifestWithoutCaptureMetadataStillLoads() async throws {
@@ -168,7 +215,7 @@ struct bag_endTests {
 
     private func makeRepositoryFixture(now: Date = Date(timeIntervalSince1970: 0)) throws -> RepositoryFixture {
         let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BagEndTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("TsukimiTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
 
         let defaults = try makeDefaults()
@@ -179,7 +226,7 @@ struct bag_endTests {
     }
 
     private func makeDefaults() throws -> UserDefaults {
-        let suiteName = "BagEndTests-\(UUID().uuidString)"
+        let suiteName = "TsukimiTests-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defaults.removePersistentDomain(forName: suiteName)
         return defaults

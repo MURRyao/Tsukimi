@@ -24,11 +24,11 @@ final class bag_endUITests: XCTestCase {
 
     @MainActor
     func testExample() throws {
-        throw XCTSkip("Bag End is an LSUIElement menu-bar utility; XCTest UI launch tests do not reliably terminate it.")
+        throw XCTSkip("Tsukimi is an LSUIElement menu-bar utility; XCTest UI launch tests do not reliably terminate it.")
     }
 
     @MainActor
     func testLaunchPerformance() throws {
-        throw XCTSkip("Bag End is an LSUIElement menu-bar utility; launch performance needs a custom harness.")
+        throw XCTSkip("Tsukimi is an LSUIElement menu-bar utility; launch performance needs a custom harness.")
     }
 }

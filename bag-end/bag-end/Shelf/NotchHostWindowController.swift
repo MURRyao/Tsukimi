@@ -268,7 +268,7 @@ private struct NotchHostView: View {
 
     private var compactTitle: String {
         if repository.items.isEmpty {
-            return "Bag End"
+            return AppBrand.displayName
         }
 
         return "\(repository.items.count) screenshot\(repository.items.count == 1 ? "" : "s")"

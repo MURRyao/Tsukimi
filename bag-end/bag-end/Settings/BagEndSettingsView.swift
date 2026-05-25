@@ -81,7 +81,7 @@ private struct StorageSettingsView: View {
         Form {
             Stepper("Max unpinned screenshots: \(settings.maxUnpinnedScreenshots)", value: $settings.maxUnpinnedScreenshots, in: 5...100)
             Stepper("Delete unpinned after: \(settings.deleteUnpinnedAfterHours)h", value: $settings.deleteUnpinnedAfterHours, in: 1...168)
-            Text("~/Library/Application Support/Bag End/screenshots")
+            Text("~/Library/Application Support/\(AppBrand.storageDirectoryName)/screenshots")
                 .font(.caption)
                 .foregroundStyle(BagEndDesign.ColorToken.textSecondary)
         }

@@ -93,7 +93,7 @@ private struct ShelfHeaderView: View {
             AppIconMark()
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Bag End")
+                Text(AppBrand.displayName)
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(BagEndDesign.ColorToken.textPrimary)
 
@@ -207,7 +207,7 @@ private struct EmptyShelfView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Text("No screenshots in Bag End")
+            Text("No screenshots in \(AppBrand.displayName)")
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(BagEndDesign.ColorToken.textPrimary)
 

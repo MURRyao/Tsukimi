@@ -18,7 +18,7 @@ struct NotchHandleView: View {
                         .fill(BagEndDesign.ColorToken.brandAccent)
                         .frame(width: 7, height: 7)
 
-                    Text("Bag End")
+                    Text(AppBrand.displayName)
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.92))
 

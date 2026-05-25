@@ -15,9 +15,9 @@ final class StatusBarController: NSObject {
         statusItem.isVisible = true
 
         if let button = statusItem.button {
-            button.title = "BE"
+            button.title = AppBrand.statusBarTitle
             button.font = .systemFont(ofSize: 13, weight: .semibold)
-            button.toolTip = "Bag End"
+            button.toolTip = AppBrand.displayName
         }
 
         let menu = NSMenu()
@@ -27,7 +27,7 @@ final class StatusBarController: NSObject {
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Preferences...", action: #selector(showPreferences), keyEquivalent: ","))
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit Bag End", action: #selector(quit), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit \(AppBrand.displayName)", action: #selector(quit), keyEquivalent: "q"))
 
         for item in menu.items {
             item.target = self

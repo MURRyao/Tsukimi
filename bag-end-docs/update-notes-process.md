@@ -1,6 +1,6 @@
-# Bag End — Update Notes Process
+# Tsukimi — Update Notes Process
 
-This document defines how Bag End tracks implementation updates as roadmap work moves through `develop`.
+This document defines how Tsukimi tracks implementation updates as roadmap work moves through `develop`.
 
 ## Goals
 

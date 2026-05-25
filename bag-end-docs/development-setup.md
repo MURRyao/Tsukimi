@@ -1,4 +1,4 @@
-# Bag End — Development Setup
+# Tsukimi — Development Setup
 
 ## 1. Can this be developed in Visual Studio Code?
 
@@ -14,7 +14,7 @@ Xcode: project creation, build settings, signing, entitlements, debugging, archi
 Terminal: git, swift build where applicable, xcodebuild, scripts
 ```
 
-For a native macOS app like Bag End, do not try to avoid Xcode completely.
+For a native macOS app like Tsukimi, do not try to avoid Xcode completely.
 
 ## 2. Required software
 
@@ -182,9 +182,9 @@ Recommended repository structure:
 
 ```text
 bag-end/
-├── BagEnd.xcodeproj
-├── BagEnd/
-├── BagEndTests/
+├── bag-end.xcodeproj
+├── bag-end/
+├── bag-endTests/
 ├── docs/
 │   ├── architecture.md
 │   ├── roadmap.md
@@ -201,7 +201,7 @@ In Xcode:
 ```text
 File → New → Project
 macOS → App
-Product Name: BagEnd
+Product Name: Tsukimi
 Interface: SwiftUI
 Language: Swift
 Use Core Data: No
@@ -224,7 +224,7 @@ You may later lower or raise the target depending on ScreenCaptureKit and UI nee
 
 ## 9. Initial app type
 
-Bag End should be a menu bar utility.
+Tsukimi should be a menu bar utility.
 
 Early implementation may still show a normal app window for debugging. Later, switch to:
 
@@ -238,7 +238,7 @@ Floating shelf window
 Expected app components:
 
 ```text
-BagEndApp.swift
+TsukimiApp.swift
 AppDelegate.swift
 StatusBarController.swift
 ShelfWindowController.swift
@@ -247,7 +247,7 @@ SettingsView.swift
 
 ## 10. Permissions to expect
 
-Bag End will need Screen Recording permission for screen capture.
+Tsukimi will need Screen Recording permission for screen capture.
 
 Depending on implementation, it may also need:
 
@@ -261,9 +261,9 @@ During development, if screen capture stops working:
 
 ```text
 System Settings → Privacy & Security → Screen Recording
-Remove old Bag End entries
+Remove old Tsukimi entries
 Add or re-enable the current build
-Restart Bag End
+Restart Tsukimi
 ```
 
 If permissions reset on every rebuild or relaunch, macOS is probably seeing each build as a different app identity. Screen Recording permission is stored by TCC against the bundle identifier plus the app's code-signing designated requirement. An ad-hoc or "Sign to Run Locally" debug build can change that identity often enough that the old permission no longer matches.
@@ -283,13 +283,13 @@ Then clean the stale TCC entry once:
 tccutil reset ScreenCapture com.dbi14759.bagend.bag-end
 ```
 
-Launch the same signed app again, grant Screen Recording permission, fully quit Bag End, and relaunch it. After that, do not switch between differently signed copies of `bag-end.app` while testing the permission path.
+Launch the same signed app again, grant Screen Recording permission, fully quit Tsukimi, and relaunch it. After that, do not switch between differently signed copies of `Tsukimi.app` while testing the permission path.
 
 Useful checks:
 
 ```bash
-codesign -dv --verbose=4 /path/to/bag-end.app
-codesign -d -r- /path/to/bag-end.app
+codesign -dv --verbose=4 /path/to/Tsukimi.app
+codesign -d -r- /path/to/Tsukimi.app
 ```
 
 The TeamIdentifier and designated requirement should stay stable between development builds.
@@ -299,25 +299,25 @@ The TeamIdentifier and designated requirement should stay stable between develop
 Open project from terminal:
 
 ```bash
-open BagEnd.xcodeproj
+open bag-end/bag-end.xcodeproj
 ```
 
 Build from terminal:
 
 ```bash
-xcodebuild -project BagEnd.xcodeproj -scheme BagEnd -configuration Debug build | xcbeautify
+xcodebuild -project bag-end/bag-end.xcodeproj -scheme bag-end -configuration Debug build | xcbeautify
 ```
 
 Run tests:
 
 ```bash
-xcodebuild test -project BagEnd.xcodeproj -scheme BagEnd -destination 'platform=macOS' | xcbeautify
+xcodebuild test -project bag-end/bag-end.xcodeproj -scheme bag-end -destination 'platform=macOS' | xcbeautify
 ```
 
 Format Swift:
 
 ```bash
-swiftformat BagEnd BagEndTests
+swiftformat bag-end/bag-end bag-end/bag-endTests
 ```
 
 Lint Swift:
@@ -340,7 +340,7 @@ DerivedData/
 *.log
 *.dSYM.zip
 *.dSYM
-BagEnd.app
+Tsukimi.app
 *.dmg
 ```
 
@@ -365,7 +365,7 @@ Step 3:
 
 ```text
 Add temporary screenshot capture using the macOS screencapture command.
-Save result into Application Support/Bag End/screenshots.
+Save result into Application Support/Tsukimi/screenshots.
 ```
 
 Step 4:

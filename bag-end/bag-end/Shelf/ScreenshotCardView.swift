@@ -73,6 +73,15 @@ struct ScreenshotCardView: View {
         .onHover { isHovering = $0 }
         .contextMenu {
             Button(item.isPinned ? "Unpin" : "Pin", action: pinAction)
+            Button("Copy Image") {
+                DragItemProvider.copyImageToPasteboard(for: item.fileURL)
+            }
+            Button("Copy File") {
+                DragItemProvider.copyFileToPasteboard(for: item.fileURL)
+            }
+            Button("Save As...") {
+                DragItemProvider.saveImageAs(fileURL: item.fileURL, suggestedName: item.fileURL.lastPathComponent)
+            }
             Button("Delete", action: deleteAction)
         }
         .onDrag {
@@ -83,7 +92,8 @@ struct ScreenshotCardView: View {
 
     private var displayTitle: String {
         item.fileURL.deletingPathExtension().lastPathComponent
-            .replacingOccurrences(of: "bag-end-", with: "")
+            .replacingOccurrences(of: "\(AppBrand.screenshotFilenamePrefix)-", with: "")
+            .replacingOccurrences(of: "\(AppBrand.legacyScreenshotFilenamePrefix)-", with: "")
             .prefix(24)
             .description
     }

@@ -1,10 +1,10 @@
-# codex.md — Bag End Development Instructions
+# codex.md — Tsukimi Development Instructions
 
 ## Project
 
-Project name: **Bag End**
+Project name: **Tsukimi**
 
-Bag End is a native macOS screenshot shelf. It captures screenshots with a flow similar to `Command + Shift + 4`, but instead of saving the screenshot to Desktop, it stores screenshots in a temporary shelf that drops down from the MacBook notch or from the top edge of the active display. The user can drag screenshots from the shelf into other apps.
+Tsukimi is a native macOS screenshot shelf. It captures screenshots with a flow similar to `Command + Shift + 4`, but instead of saving the screenshot to Desktop, it stores screenshots in a temporary shelf that drops down from the MacBook notch or from the top edge of the active display. The user can drag screenshots from the shelf into other apps.
 
 ## Main product goal
 
@@ -44,7 +44,7 @@ Cloud backend for MVP
 
 ## Product constraints
 
-Bag End must be:
+Tsukimi must be:
 
 ```text
 Local-first
@@ -56,7 +56,7 @@ Usable without cloud account
 Safe with private screenshots
 ```
 
-Bag End must not:
+Tsukimi must not:
 
 ```text
 Save screenshots to Desktop by default
@@ -146,28 +146,30 @@ Overengineering before MVP works
 Use project/product name in user-facing text:
 
 ```text
-Bag End
+Tsukimi
 ```
 
 Use code-safe names:
 
 ```text
-BagEndApp
-BagEndSettings
-BagEndShelf
+TsukimiApp
+TsukimiSettings
+TsukimiShelf
 ScreenshotRepository
 CaptureCoordinator
 ShelfWindowController
 ```
+
+Existing Swift symbols may still carry `BagEnd` prefixes during the rename migration. Prefer `Tsukimi` for new user-facing strings and new top-level app concepts.
 
 ## File organization
 
 Preferred structure:
 
 ```text
-BagEnd/
+Tsukimi/
 ├── App/
-│   ├── BagEndApp.swift
+│   ├── TsukimiApp.swift
 │   └── AppDelegate.swift
 ├── AppCore/
 ├── Capture/
@@ -183,7 +185,7 @@ BagEnd/
 Tests:
 
 ```text
-BagEndTests/
+TsukimiTests/
 ├── StorageTests/
 ├── SettingsTests/
 ├── CleanupTests/
@@ -226,7 +228,7 @@ Example behavior:
 
 ```text
 Run interactive region capture
-Save image into Bag End app storage
+Save image into Tsukimi app storage
 Load image into shelf
 ```
 
@@ -251,7 +253,7 @@ Then test Telegram, Discord, Slack, Notion, Obsidian, Preview, and browser file 
 Store screenshots in:
 
 ```text
-~/Library/Application Support/Bag End/screenshots/
+~/Library/Application Support/Tsukimi/screenshots/
 ```
 
 Do not store in:
@@ -354,6 +356,6 @@ Do not make the first version too broad. The MVP is a shelf, not a screenshot su
 Current priority:
 
 ```text
-Build the smallest working Bag End prototype:
+Build the smallest working Tsukimi prototype:
 hotkey or menu action → area capture → shelf display → drag out
 ```

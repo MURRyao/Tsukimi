@@ -19,6 +19,6 @@ final class bag_endUITestsLaunchTests: XCTestCase {
 
     @MainActor
     func testLaunch() throws {
-        throw XCTSkip("Bag End is an LSUIElement menu-bar utility; launch screenshots need a custom menu-bar harness.")
+        throw XCTSkip("Tsukimi is an LSUIElement menu-bar utility; launch screenshots need a custom menu-bar harness.")
     }
 }

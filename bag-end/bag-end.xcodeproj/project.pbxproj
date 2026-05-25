@@ -24,7 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		406C583F2FC200D900BE2C70 /* bag-end.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bag-end.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		406C583F2FC200D900BE2C70 /* Tsukimi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tsukimi.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		406C584C2FC200DA00BE2C70 /* bag-endTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "bag-endTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		406C58562FC200DA00BE2C70 /* bag-endUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "bag-endUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -85,7 +85,7 @@
 		406C58402FC200D900BE2C70 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				406C583F2FC200D900BE2C70 /* bag-end.app */,
+				406C583F2FC200D900BE2C70 /* Tsukimi.app */,
 				406C584C2FC200DA00BE2C70 /* bag-endTests.xctest */,
 				406C58562FC200DA00BE2C70 /* bag-endUITests.xctest */,
 			);
@@ -114,7 +114,7 @@
 			packageProductDependencies = (
 			);
 			productName = "bag-end";
-			productReference = 406C583F2FC200D900BE2C70 /* bag-end.app */;
+			productReference = 406C583F2FC200D900BE2C70 /* Tsukimi.app */;
 			productType = "com.apple.product-type.application";
 		};
 		406C584B2FC200DA00BE2C70 /* bag-endTests */ = {
@@ -399,7 +399,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Bag End";
+				INFOPLIST_KEY_CFBundleDisplayName = Tsukimi;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -407,9 +407,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.3;
+				MARKETING_VERSION = 0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dbi14759.bagend.bag-end";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = bag_end;
+				PRODUCT_NAME = Tsukimi;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -432,7 +433,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Bag End";
+				INFOPLIST_KEY_CFBundleDisplayName = Tsukimi;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -440,9 +441,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.3;
+				MARKETING_VERSION = 0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dbi14759.bagend.bag-end";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = bag_end;
+				PRODUCT_NAME = Tsukimi;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -469,7 +471,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/bag-end.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/bag-end";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tsukimi.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tsukimi";
 			};
 			name = Debug;
 		};
@@ -489,7 +491,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/bag-end.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/bag-end";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tsukimi.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tsukimi";
 			};
 			name = Release;
 		};

@@ -104,14 +104,14 @@ final class AppState: ObservableObject {
         lastErrorMessage = message
 
         let alert = NSAlert()
-        alert.messageText = "Bag End"
+        alert.messageText = AppBrand.displayName
         alert.informativeText = message
         alert.alertStyle = .warning
         alert.icon = NSApp.applicationIconImage
 
         if case ScreenCaptureError.screenRecordingPermissionRequired = error {
             alert.addButton(withTitle: "Open Settings")
-            alert.addButton(withTitle: "Quit Bag End")
+            alert.addButton(withTitle: "Quit \(AppBrand.displayName)")
             alert.addButton(withTitle: "OK")
 
             let response = alert.runModal()
@@ -167,20 +167,20 @@ enum BagEndErrorMessage {
             case .missingOutput:
                 return "Screen capture did not create an image. Try again or check Screen Recording permission."
             case .couldNotLaunch:
-                return "Bag End could not start macOS screencapture."
+                return "\(AppBrand.displayName) could not start macOS screencapture."
             case .nativeCaptureFailed:
-                return "Bag End could not capture the selected region. Try again, or check Screen Recording permission in System Settings."
+                return "\(AppBrand.displayName) could not capture the selected region. Try again, or check Screen Recording permission in System Settings."
             case .screenRecordingPermissionRequired:
-                return "Bag End needs Screen Recording permission. Enable Bag End in System Settings > Privacy & Security > Screen & System Audio Recording, then fully quit and relaunch the app from Xcode so macOS reloads the permission."
+                return "\(AppBrand.displayName) needs Screen Recording permission. Enable \(AppBrand.displayName) in System Settings > Privacy & Security > Screen & System Audio Recording, then fully quit and relaunch the app from Xcode so macOS reloads the permission."
             }
         }
 
         if let hotKeyError = error as? GlobalHotKeyError {
             switch hotKeyError {
             case .handlerInstallFailed(let status):
-                return "Bag End could not install the global hotkey handler. macOS returned status \(status)."
+                return "\(AppBrand.displayName) could not install the global hotkey handler. macOS returned status \(status)."
             case .registrationFailed(let shortcut, let status):
-                return "Bag End could not register \(shortcut.symbolicDisplayName) for \(shortcut.title). Another app may already use it. macOS returned status \(status)."
+                return "\(AppBrand.displayName) could not register \(shortcut.symbolicDisplayName) for \(shortcut.title). Another app may already use it. macOS returned status \(status)."
             }
         }
 

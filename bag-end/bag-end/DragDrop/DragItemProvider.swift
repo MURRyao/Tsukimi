@@ -1,19 +1,31 @@
 import AppKit
+import UniformTypeIdentifiers
 
 enum DragItemProvider {
     static func provider(for item: ScreenshotItem) -> NSItemProvider {
         let fileURL = item.fileURL
         let provider = NSItemProvider(contentsOf: fileURL) ?? NSItemProvider()
+        provider.suggestedName = fileURL.deletingPathExtension().lastPathComponent
 
         if let data = try? Data(contentsOf: fileURL) {
-            provider.registerDataRepresentation(forTypeIdentifier: "public.png", visibility: .all) { completion in
+            provider.registerDataRepresentation(forTypeIdentifier: UTType.png.identifier, visibility: .all) { completion in
                 completion(data, nil)
+                return nil
+            }
+
+            provider.registerDataRepresentation(forTypeIdentifier: UTType.image.identifier, visibility: .all) { completion in
+                completion(data, nil)
+                return nil
+            }
+
+            provider.registerDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier, visibility: .all) { completion in
+                completion(fileURL.absoluteString.data(using: .utf8), nil)
                 return nil
             }
         }
 
         if let image = NSImage(contentsOf: fileURL), let tiffData = image.tiffRepresentation {
-            provider.registerDataRepresentation(forTypeIdentifier: "public.tiff", visibility: .all) { completion in
+            provider.registerDataRepresentation(forTypeIdentifier: UTType.tiff.identifier, visibility: .all) { completion in
                 completion(tiffData, nil)
                 return nil
             }
@@ -26,5 +38,28 @@ enum DragItemProvider {
         guard let image = NSImage(contentsOf: fileURL) else { return }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.writeObjects([image])
+    }
+
+    static func copyFileToPasteboard(for fileURL: URL) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.writeObjects([fileURL as NSURL])
+    }
+
+    static func saveImageAs(fileURL: URL, suggestedName: String? = nil) {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.png]
+        panel.canCreateDirectories = true
+        panel.nameFieldStringValue = suggestedName ?? fileURL.lastPathComponent
+
+        guard panel.runModal() == .OK, let destinationURL = panel.url else { return }
+
+        do {
+            if FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.removeItem(at: destinationURL)
+            }
+            try FileManager.default.copyItem(at: fileURL, to: destinationURL)
+        } catch {
+            NSSound.beep()
+        }
     }
 }

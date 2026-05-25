@@ -1,20 +1,20 @@
-# Bag End — Architecture
+# Tsukimi — Architecture
 
 ## 1. Product definition
 
-**Bag End** is a macOS screenshot shelf. The app captures screenshots with a workflow similar to `Command + Shift + 4`, but instead of saving the screenshot to Desktop, it stores the image in a temporary visual shelf that drops down from the MacBook notch or from the top edge of the active display.
+**Tsukimi** is a macOS screenshot shelf. The app captures screenshots with a workflow similar to `Command + Shift + 4`, but instead of saving the screenshot to Desktop, it stores the image in a temporary visual shelf that drops down from the MacBook notch or from the top edge of the active display.
 
 The core user flow:
 
 ```text
-Hotkey → Select screen region → Capture screenshot → Store in Bag End shelf → Drag screenshot into another app
+Hotkey → Select screen region → Capture screenshot → Store in Tsukimi shelf → Drag screenshot into another app
 ```
 
 The app should feel like a native macOS utility, not like a large screenshot editor.
 
 ## 2. Product principles
 
-Bag End should follow these principles:
+Tsukimi should follow these principles:
 
 1. **Fast capture** — the user should not think about file names, folders, or export dialogs.
 2. **Temporary by default** — screenshots are held for short-term use and removed automatically unless pinned.
@@ -51,7 +51,7 @@ Swift Package Manager: for dependencies
 ## 4. High-level architecture
 
 ```text
-BagEnd.app
+Tsukimi.app
 ├── AppCore
 │   ├── AppState
 │   ├── SettingsStore
@@ -208,7 +208,7 @@ Shelf layout:
 
 ```text
 ┌─────────────────────────────────────────────┐
-│ Bag End                                     │
+│ Tsukimi                                     │
 │ [screenshot] [screenshot] [screenshot] [+]  │
 │ Clear all       Open settings       Pin mode│
 └─────────────────────────────────────────────┘
@@ -236,7 +236,7 @@ Responsible for local screenshot persistence.
 Recommended storage path:
 
 ```text
-~/Library/Application Support/Bag End/
+~/Library/Application Support/Tsukimi/
 ├── screenshots/
 ├── thumbnails/
 └── bagend.sqlite
@@ -245,7 +245,7 @@ Recommended storage path:
 MVP may use:
 
 ```text
-~/Library/Application Support/Bag End/screenshots/
+~/Library/Application Support/Tsukimi/screenshots/
 manifest.json
 ```
 
@@ -280,7 +280,7 @@ Maximum unpinned item count: 25 by default
 
 ### 5.6 DragDrop
 
-Responsible for moving screenshots from Bag End into other apps.
+Responsible for moving screenshots from Tsukimi into other apps.
 
 Each screenshot card should expose multiple representations:
 
@@ -307,7 +307,7 @@ This module is critical because the product succeeds only if dragging feels reli
 
 ### 5.7 MenuBar
 
-Bag End should run primarily as a menu bar app.
+Tsukimi should run primarily as a menu bar app.
 
 Menu bar actions:
 
@@ -355,7 +355,7 @@ Privacy mode
 
 ## 6. Permissions
 
-Bag End will require macOS permissions.
+Tsukimi will require macOS permissions.
 
 Required:
 
@@ -382,7 +382,7 @@ User opens System Settings
     ↓
 User grants permission
     ↓
-User restarts Bag End if required
+User restarts Tsukimi if required
 ```
 
 During development, screen capture permissions can reset or behave inconsistently if code signing identity changes. Use a stable Apple Development signing identity for debug builds when possible.
@@ -550,7 +550,7 @@ UI tests can be added later but should not block MVP.
 
 ## 11. Non-goals
 
-Bag End is not initially:
+Tsukimi is not initially:
 
 ```text
 A full screenshot editor

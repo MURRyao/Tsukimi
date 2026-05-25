@@ -1,6 +1,6 @@
-# Bag End Docs
+# Tsukimi Docs
 
-This archive contains starter Markdown documentation for the Bag End macOS screenshot shelf project.
+This archive contains starter Markdown documentation for the Tsukimi macOS screenshot shelf project.
 
 Files:
 

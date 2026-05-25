@@ -3,6 +3,7 @@ import Foundation
 
 struct FileStorageService {
     let applicationSupportURL: URL
+    private let legacyApplicationSupportURL: URL?
 
     var screenshotsDirectory: URL {
         applicationSupportURL.appendingPathComponent("screenshots", isDirectory: true)
@@ -12,16 +13,19 @@ struct FileStorageService {
         applicationSupportURL.appendingPathComponent("manifest.json")
     }
 
-    init(applicationSupportURL: URL? = nil) {
+    init(applicationSupportURL: URL? = nil, legacyApplicationSupportURL: URL? = nil) {
         if let applicationSupportURL {
             self.applicationSupportURL = applicationSupportURL
+            self.legacyApplicationSupportURL = legacyApplicationSupportURL
         } else {
             let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            self.applicationSupportURL = baseURL.appendingPathComponent("Bag End", isDirectory: true)
+            self.applicationSupportURL = baseURL.appendingPathComponent(AppBrand.storageDirectoryName, isDirectory: true)
+            self.legacyApplicationSupportURL = baseURL.appendingPathComponent(AppBrand.legacyStorageDirectoryName, isDirectory: true)
         }
     }
 
     func prepareDirectories() throws {
+        try migrateLegacyStorageIfNeeded()
         try FileManager.default.createDirectory(at: screenshotsDirectory, withIntermediateDirectories: true)
     }
 
@@ -30,7 +34,7 @@ struct FileStorageService {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
         let safeDate = formatter.string(from: Date()).replacingOccurrences(of: ":", with: "-")
-        return screenshotsDirectory.appendingPathComponent("bag-end-\(safeDate)-\(id.uuidString).png")
+        return screenshotsDirectory.appendingPathComponent("\(AppBrand.screenshotFilenamePrefix)-\(safeDate)-\(id.uuidString).png")
     }
 
     func metadata(
@@ -59,6 +63,17 @@ struct FileStorageService {
             expiresAt: now.addingTimeInterval(lifetime),
             lastDraggedAt: nil
         )
+    }
+
+    private func migrateLegacyStorageIfNeeded() throws {
+        guard let legacyApplicationSupportURL,
+              legacyApplicationSupportURL != applicationSupportURL,
+              FileManager.default.fileExists(atPath: legacyApplicationSupportURL.path),
+              !FileManager.default.fileExists(atPath: applicationSupportURL.path) else {
+            return
+        }
+
+        try FileManager.default.moveItem(at: legacyApplicationSupportURL, to: applicationSupportURL)
     }
 }
 

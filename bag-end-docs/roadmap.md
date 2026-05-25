@@ -1,8 +1,8 @@
-# Bag End — Roadmap
+# Tsukimi — Roadmap
 
 ## Product vision
 
-Bag End is a native macOS screenshot shelf that captures screenshots and temporarily stores them in a notch/top-edge shelf for quick drag-and-drop into other apps.
+Tsukimi is a native macOS screenshot shelf that captures screenshots and temporarily stores them in a notch/top-edge shelf for quick drag-and-drop into other apps.
 
 The first goal is not to replace CleanShot X, Shottr, or Snagit. The first goal is to make one narrow workflow excellent:
 
@@ -32,7 +32,7 @@ Acceptance criteria:
 ```text
 User presses hotkey
 User selects area
-Screenshot appears in Bag End shelf
+Screenshot appears in Tsukimi shelf
 User drags it into Finder
 No screenshot is created on Desktop
 ```
@@ -108,6 +108,8 @@ Support PNG data drag
 Support TIFF/NSImage representation
 Add copy image action
 Add save as action
+Rename user-facing app to Tsukimi
+Migrate legacy Application Support storage
 Add file promise support if needed
 Test major target apps
 ```
@@ -134,6 +136,7 @@ Acceptance criteria:
 Dragging a screenshot works in most common apps
 Copy image works in image-aware apps
 Save as works reliably
+Existing local screenshots migrate from the legacy storage folder
 ```
 
 ## Version 0.5 — First private beta
