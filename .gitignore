@@ -12,3 +12,6 @@ build/
 # Xcode user-specific project/workspace settings
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
+
+docs/
+Tsukimi-AppIcon-macOS/
