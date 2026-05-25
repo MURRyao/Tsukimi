@@ -107,6 +107,7 @@ final class AppState: ObservableObject {
         alert.messageText = "Bag End"
         alert.informativeText = message
         alert.alertStyle = .warning
+        alert.icon = NSApp.applicationIconImage
 
         if case ScreenCaptureError.screenRecordingPermissionRequired = error {
             alert.addButton(withTitle: "Open Settings")

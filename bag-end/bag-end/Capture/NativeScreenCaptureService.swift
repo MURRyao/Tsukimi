@@ -101,7 +101,7 @@ final class OverlayRegionSelectionService: RegionSelectionService {
 
 private final class CaptureSelectionOverlayController {
     private let completion: (Result<CGRect, Error>) -> Void
-    private var window: CaptureSelectionWindow?
+    private var windows: [CaptureSelectionWindow] = []
     private var isFinished = false
 
     init(completion: @escaping (Result<CGRect, Error>) -> Void) {
@@ -109,28 +109,45 @@ private final class CaptureSelectionOverlayController {
     }
 
     func show() {
-        guard let frame = NSScreen.screens.map(\.frame).reduce(nil, { partial, frame in
-            partial?.union(frame) ?? frame
-        }) else {
+        let screens = NSScreen.screens
+        guard !screens.isEmpty else {
             finish(.failure(ScreenCaptureError.nativeCaptureFailed))
             return
         }
 
-        let selectionView = CaptureSelectionView(frame: CGRect(origin: .zero, size: frame.size))
+        windows = screens.map(makeWindow)
+
+        for window in windows {
+            window.orderFrontRegardless()
+        }
+
+        let activeWindow = windows.first { window in
+            window.frame.contains(NSEvent.mouseLocation)
+        } ?? windows.first
+        activeWindow?.makeKeyAndOrderFront(nil)
+    }
+
+    func cancel() {
+        finish(.failure(ScreenCaptureError.cancelled))
+    }
+
+    private func makeWindow(for screen: NSScreen) -> CaptureSelectionWindow {
+        let screenFrame = screen.frame
+        let selectionView = CaptureSelectionView(frame: CGRect(origin: .zero, size: screenFrame.size))
         selectionView.onComplete = { [weak self] rect in
             guard rect.width >= 4, rect.height >= 4 else {
                 self?.finish(.failure(ScreenCaptureError.cancelled))
                 return
             }
 
-            self?.finish(.success(rect.offsetBy(dx: frame.minX, dy: frame.minY)))
+            self?.finish(.success(rect.offsetBy(dx: screenFrame.minX, dy: screenFrame.minY)))
         }
         selectionView.onCancel = { [weak self] in
             self?.finish(.failure(ScreenCaptureError.cancelled))
         }
 
         let window = CaptureSelectionWindow(
-            contentRect: frame,
+            contentRect: screenFrame,
             styleMask: .borderless,
             backing: .buffered,
             defer: false
@@ -145,20 +162,17 @@ private final class CaptureSelectionOverlayController {
         window.ignoresMouseEvents = false
         window.acceptsMouseMovedEvents = true
 
-        self.window = window
-        window.makeKeyAndOrderFront(nil)
         window.makeFirstResponder(selectionView)
-    }
-
-    func cancel() {
-        finish(.failure(ScreenCaptureError.cancelled))
+        return window
     }
 
     private func finish(_ result: Result<CGRect, Error>) {
         guard !isFinished else { return }
         isFinished = true
-        window?.orderOut(nil)
-        window = nil
+        for window in windows {
+            window.orderOut(nil)
+        }
+        windows = []
         completion(result)
     }
 }

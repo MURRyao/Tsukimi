@@ -2,20 +2,31 @@ import SwiftUI
 
 enum BagEndDesign {
     enum ColorToken {
-        static let brandDeep = Color(hex: 0x12351F)
-        static let brandPrimary = Color(hex: 0x2E7D32)
-        static let brandAccent = Color(hex: 0x43A047)
-        static let brandSecondary = Color(hex: 0x55735B)
+        static let brandDeep = Color(hex: 0x1F2430)
+        static let brandPrimary = Color(hex: 0x5B86F7)
+        static let brandPrimaryHover = Color(hex: 0x4A74E6)
+        static let brandAccent = Color(hex: 0xF5B548)
+        static let brandAccentHover = Color(hex: 0xE5A437)
+        static let brandSecondary = Color(hex: 0x5A6270)
+        static let muted = Color(hex: 0x8A92A1)
+        static let graphite = Color(hex: 0x2C313D)
 
-        static let surfaceGreen = Color(hex: 0xF4FFF5).opacity(0.78)
-        static let surfaceCard = Color(hex: 0xF8FFF9).opacity(0.92)
-        static let shelfSurface = Color(hex: 0x2F8D4C)
-        static let shelfSurfaceDeep = Color(hex: 0x1F6F3B)
-        static let shelfBorder = Color(hex: 0xBDE8C6).opacity(0.42)
-        static let slideTrack = Color(hex: 0xD7EAD7).opacity(0.92)
-        static let wallpaperA = Color(hex: 0xEEF8EF)
-        static let wallpaperB = Color(hex: 0xD9ECD8)
-        static let wallpaperWarm = Color(hex: 0xF5F1E6)
+        static let primaryBackground = Color(hex: 0xF4F5F7)
+        static let secondaryBackground = Color(hex: 0xECEEF2)
+        static let surface = Color(hex: 0xFFFFFF)
+        static let border = Color(hex: 0xD8DCE3)
+        static let accentBlueSoft = Color(hex: 0xDCE6FF)
+        static let accentAmberSoft = Color(hex: 0xFFE9BF)
+
+        static let surfaceGreen = accentBlueSoft.opacity(0.72)
+        static let surfaceCard = surface.opacity(0.96)
+        static let shelfSurface = primaryBackground
+        static let shelfSurfaceDeep = secondaryBackground
+        static let shelfBorder = border.opacity(0.82)
+        static let slideTrack = border.opacity(0.92)
+        static let wallpaperA = primaryBackground
+        static let wallpaperB = secondaryBackground
+        static let wallpaperWarm = accentAmberSoft
 
         static let textPrimary = brandDeep
         static let textSecondary = brandSecondary

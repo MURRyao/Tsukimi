@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct BagEndShelfView: View {
@@ -38,10 +39,10 @@ struct BagEndShelfView: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: BagEndDesign.Shelf.cornerRadius - 7, style: .continuous)
-                        .stroke(.white.opacity(0.13), lineWidth: 1)
+                        .stroke(.white.opacity(0.72), lineWidth: 1)
                         .padding(10)
                 )
-                .shadow(color: .black.opacity(0.22), radius: 28, y: 18)
+                .shadow(color: BagEndDesign.ColorToken.graphite.opacity(0.18), radius: 28, y: 18)
 
             VStack(alignment: .leading, spacing: 18) {
                 ShelfHeaderView(
@@ -72,7 +73,7 @@ struct BagEndShelfView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
             Capsule(style: .continuous)
-                .fill(.white.opacity(0.14))
+                .fill(BagEndDesign.ColorToken.muted.opacity(0.28))
                 .frame(width: 86, height: 4)
                 .padding(.top, 8)
         }
@@ -98,7 +99,7 @@ private struct ShelfHeaderView: View {
 
                 Text("\(count) temporary screenshots · local only · auto-hide in \(autoHideDelay)s")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.56))
+                    .foregroundStyle(BagEndDesign.ColorToken.textSecondary)
                     .lineLimit(1)
             }
 
@@ -122,24 +123,11 @@ private struct ShelfHeaderView: View {
 
 private struct AppIconMark: View {
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            BagEndDesign.ColorToken.brandDeep,
-                            BagEndDesign.ColorToken.brandPrimary
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-
-            Text("B")
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(.white)
-        }
-        .frame(width: BagEndDesign.Shelf.iconSize, height: BagEndDesign.Shelf.iconSize)
+        Image(nsImage: NSApplication.shared.applicationIconImage)
+            .resizable()
+            .scaledToFit()
+            .shadow(color: BagEndDesign.ColorToken.graphite.opacity(0.14), radius: 4, y: 2)
+            .frame(width: BagEndDesign.Shelf.iconSize, height: BagEndDesign.Shelf.iconSize)
     }
 }
 
@@ -167,11 +155,14 @@ private struct ShelfButton: View {
         .foregroundStyle(prominent ? .white : BagEndDesign.ColorToken.textPrimary)
         .background(
             Capsule(style: .continuous)
-                .fill(prominent ? BagEndDesign.ColorToken.shelfSurfaceDeep.opacity(0.7) : BagEndDesign.ColorToken.surfaceGreen)
+                .fill(prominent ? BagEndDesign.ColorToken.brandPrimary : BagEndDesign.ColorToken.surfaceGreen)
         )
         .overlay(
             Capsule(style: .continuous)
-                .stroke(.white.opacity(prominent ? 0.16 : 0.28), lineWidth: 1)
+                .stroke(
+                    prominent ? BagEndDesign.ColorToken.brandPrimaryHover.opacity(0.5) : BagEndDesign.ColorToken.border,
+                    lineWidth: 1
+                )
         )
     }
 }
@@ -222,7 +213,7 @@ private struct EmptyShelfView: View {
 
             Text("Press the capture hotkey. New screenshots stay off Desktop and appear here temporarily.")
                 .font(.system(size: 13))
-                .foregroundStyle(.white.opacity(0.56))
+                .foregroundStyle(BagEndDesign.ColorToken.textSecondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 420)
 

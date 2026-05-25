@@ -10,8 +10,8 @@ struct NotchHandleView: View {
         VStack(spacing: 0) {
             ZStack {
                 Capsule(style: .continuous)
-                    .fill(Color.black.opacity(0.96))
-                    .shadow(color: .black.opacity(0.22), radius: 12, y: 5)
+                    .fill(BagEndDesign.ColorToken.graphite.opacity(0.98))
+                    .shadow(color: BagEndDesign.ColorToken.graphite.opacity(0.2), radius: 12, y: 5)
 
                 HStack(spacing: 8) {
                     Circle()

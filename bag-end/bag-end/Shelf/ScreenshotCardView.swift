@@ -17,13 +17,13 @@ struct ScreenshotCardView: View {
                     .clipShape(RoundedRectangle(cornerRadius: BagEndDesign.Card.thumbnailCornerRadius, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: BagEndDesign.Card.thumbnailCornerRadius, style: .continuous)
-                            .stroke(.black.opacity(0.08), lineWidth: 1)
+                            .stroke(BagEndDesign.ColorToken.border.opacity(0.75), lineWidth: 1)
                     )
 
                 Button(action: deleteAction) {
                     Image(systemName: "xmark")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(BagEndDesign.ColorToken.brandSecondary)
+                        .foregroundStyle(BagEndDesign.ColorToken.muted)
                         .frame(width: 20, height: 20)
                         .background(.white.opacity(0.9), in: Circle())
                 }
@@ -63,11 +63,11 @@ struct ScreenshotCardView: View {
         .background(
             RoundedRectangle(cornerRadius: BagEndDesign.Card.cornerRadius, style: .continuous)
                 .fill(BagEndDesign.ColorToken.surfaceCard)
-                .shadow(color: .black.opacity(0.08), radius: 9, y: 5)
+                .shadow(color: BagEndDesign.ColorToken.graphite.opacity(0.09), radius: 9, y: 5)
         )
         .overlay(
             RoundedRectangle(cornerRadius: BagEndDesign.Card.cornerRadius, style: .continuous)
-                .stroke(.white.opacity(0.75), lineWidth: 1)
+                .stroke(BagEndDesign.ColorToken.border.opacity(0.72), lineWidth: 1)
         )
         .contentShape(RoundedRectangle(cornerRadius: BagEndDesign.Card.cornerRadius, style: .continuous))
         .onHover { isHovering = $0 }
@@ -125,7 +125,7 @@ private struct ScreenshotThumbnailView: View {
             ZStack {
                 LinearGradient(
                     colors: [
-                        BagEndDesign.ColorToken.brandPrimary.opacity(0.72),
+                        BagEndDesign.ColorToken.accentBlueSoft.opacity(0.95),
                         BagEndDesign.ColorToken.wallpaperWarm.opacity(0.82)
                     ],
                     startPoint: .topLeading,
