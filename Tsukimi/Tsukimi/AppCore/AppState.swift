@@ -29,6 +29,16 @@ final class AppState: ObservableObject {
             storage: storage,
             fallback: ScreencaptureScreenCaptureService(storage: storage)
         )
+
+        settings.storageSettingsChanged
+            .sink { [weak self] in
+                do {
+                    try self?.repository.applyStoragePolicies()
+                } catch {
+                    self?.presentError(error)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     func start() {
@@ -60,6 +70,7 @@ final class AppState: ObservableObject {
             } catch {
                 presentError(error)
             }
+            try? repository.cleanupExpired()
         }
     }
 
