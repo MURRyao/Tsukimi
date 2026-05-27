@@ -57,6 +57,9 @@ final class NativeScreenCaptureService: ScreenCaptureService {
             throw ScreenCaptureError.nativeCaptureFailed
         }
 
+        guard #available(macOS 15.2, *) else {
+            throw ScreenCaptureError.nativeCaptureFailed
+        }
         let outputImage = try await SCScreenshotManager.captureImage(in: rect)
         guard let pngData = NSBitmapImageRep(cgImage: outputImage).representation(using: .png, properties: [:]) else {
             throw ScreenCaptureError.nativeCaptureFailed
