@@ -17,6 +17,7 @@ final class AppState: ObservableObject {
     )
     private var isShelfExpanded = false
     private var autoHideTask: Task<Void, Never>?
+    private var cleanupTimer: AnyCancellable?
     private var cancellables: Set<AnyCancellable> = []
     private var isCapturing = false
 
@@ -30,6 +31,16 @@ final class AppState: ObservableObject {
             storage: storage,
             fallback: ScreencaptureScreenCaptureService(storage: storage)
         )
+
+        settings.storageSettingsChanged
+            .sink { [weak self] in
+                do {
+                    try self?.repository.applyStoragePolicies()
+                } catch {
+                    self?.presentError(error)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     func start() {
@@ -82,6 +93,7 @@ final class AppState: ObservableObject {
     }
 
     func showShelf() {
+        try? repository.cleanupExpired()
         notchHostWindowController.show()
         scheduleAutoHideIfNeeded()
     }
@@ -187,6 +199,20 @@ final class AppState: ObservableObject {
                 self?.hideShelf()
             }
         }
+    }
+
+    private func startCleanupTimer() {
+        cleanupTimer = Timer.publish(every: 300, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                try? self?.repository.cleanupExpired()
+            }
+
+        settings.objectWillChange
+            .sink { [weak self] _ in
+                try? self?.repository.cleanupExpired()
+            }
+            .store(in: &cancellables)
     }
 
     private func registerHotKeys() throws {

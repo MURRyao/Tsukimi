@@ -130,6 +130,33 @@ final class ScreenshotRepository: ObservableObject {
         try save()
     }
 
+    func applyStoragePolicies() throws {
+        var changed = false
+
+        for index in items.indices {
+            if !items[index].isPinned {
+                let newExpiresAt = items[index].createdAt.addingTimeInterval(settings.unpinnedLifetime)
+                if items[index].expiresAt != newExpiresAt {
+                    items[index].expiresAt = newExpiresAt
+                    changed = true
+                }
+            }
+        }
+
+        let countBeforeEnforce = items.count
+        try enforceMaxUnpinnedCount()
+        if items.count != countBeforeEnforce {
+            changed = true
+        }
+
+        let countBeforeCleanup = items.count
+        try cleanupExpired()
+
+        if changed && items.count == countBeforeCleanup {
+            try save()
+        }
+    }
+
     private func enforceMaxUnpinnedCount() throws {
         let unpinned = items.filter { !$0.isPinned }.sorted { $0.createdAt > $1.createdAt }
         guard unpinned.count > settings.maxUnpinnedScreenshots else { return }
