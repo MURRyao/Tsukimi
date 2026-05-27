@@ -37,6 +37,10 @@ final class NotchHostWindowController {
         collapse()
     }
 
+    func hideCompletely() {
+        panel?.orderOut(nil)
+    }
+
     private func expand() {
         model.presentation = .expanded
         presentationChanged(true)

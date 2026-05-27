@@ -4,6 +4,13 @@ import ImageIO
 
 protocol ScreenCaptureService {
     func captureArea() async throws -> ScreenCaptureResult
+    func captureArea(rect: CGRect?) async throws -> ScreenCaptureResult
+}
+
+extension ScreenCaptureService {
+    func captureArea(rect: CGRect?) async throws -> ScreenCaptureResult {
+        try await captureArea()
+    }
 }
 
 enum CaptureBackend: String, Codable, Equatable {
@@ -37,6 +44,10 @@ struct ScreencaptureScreenCaptureService: ScreenCaptureService {
     }
 
     func captureArea() async throws -> ScreenCaptureResult {
+        try await captureArea(rect: nil)
+    }
+
+    func captureArea(rect: CGRect?) async throws -> ScreenCaptureResult {
         guard CGPreflightScreenCaptureAccess() else {
             throw ScreenCaptureError.screenRecordingPermissionRequired
         }
@@ -46,7 +57,13 @@ struct ScreencaptureScreenCaptureService: ScreenCaptureService {
         return try await withCheckedThrowingContinuation { continuation in
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-            process.arguments = ["-i", "-s", "-x", outputURL.path]
+
+            if let rect = rect {
+                let r = rect.standardized
+                process.arguments = ["-R\(r.origin.x),\(r.origin.y),\(r.width),\(r.height)", "-x", outputURL.path]
+            } else {
+                process.arguments = ["-i", "-s", "-x", outputURL.path]
+            }
 
             process.terminationHandler = { process in
                 let status = process.terminationStatus
@@ -61,7 +78,7 @@ struct ScreencaptureScreenCaptureService: ScreenCaptureService {
                         pixelSize: pixelSize,
                         scale: 1,
                         displayIDs: [],
-                        selectedRect: nil
+                        selectedRect: rect?.standardized
                     ))
                 } else if status == 0 {
                     continuation.resume(throwing: ScreenCaptureError.missingOutput)

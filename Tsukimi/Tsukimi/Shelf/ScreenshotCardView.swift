@@ -122,38 +122,73 @@ struct ScreenshotCardView: View {
     }
 }
 
+@MainActor
+final class ThumbnailCache {
+    static let shared = ThumbnailCache()
+    private let cache = NSCache<NSURL, NSImage>()
+
+    private init() {
+        cache.countLimit = 100
+    }
+
+    func image(for fileURL: URL) -> NSImage? {
+        cache.object(forKey: fileURL as NSURL)
+    }
+
+    func setImage(_ image: NSImage, for fileURL: URL) {
+        cache.setObject(image, forKey: fileURL as NSURL)
+    }
+}
+
 private struct ScreenshotThumbnailView: View {
     let fileURL: URL
 
+    @State private var image: NSImage?
+
     var body: some View {
-        if let image = NSImage(contentsOf: fileURL) {
-            Image(nsImage: image)
-                .resizable()
-                .scaledToFill()
-        } else {
-            ZStack {
-                LinearGradient(
-                    colors: [
-                        TsukimiDesign.ColorToken.accentBlueSoft.opacity(0.95),
-                        TsukimiDesign.ColorToken.wallpaperWarm.opacity(0.82)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+        Group {
+            if let image {
+                Image(nsImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            TsukimiDesign.ColorToken.accentBlueSoft.opacity(0.95),
+                            TsukimiDesign.ColorToken.wallpaperWarm.opacity(0.82)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
 
-                VStack(alignment: .leading, spacing: 7) {
-                    HStack(spacing: 4) {
-                        Circle().fill(.red.opacity(0.75)).frame(width: 5, height: 5)
-                        Circle().fill(.yellow.opacity(0.75)).frame(width: 5, height: 5)
-                        Circle().fill(.green.opacity(0.75)).frame(width: 5, height: 5)
+                    VStack(alignment: .leading, spacing: 7) {
+                        HStack(spacing: 4) {
+                            Circle().fill(.red.opacity(0.75)).frame(width: 5, height: 5)
+                            Circle().fill(.yellow.opacity(0.75)).frame(width: 5, height: 5)
+                            Circle().fill(.green.opacity(0.75)).frame(width: 5, height: 5)
+                        }
+
+                        RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.78)).frame(width: 52, height: 5)
+                        RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.48)).frame(width: 72, height: 5)
+                        RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.38)).frame(width: 58, height: 5)
                     }
-
-                    RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.78)).frame(width: 52, height: 5)
-                    RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.48)).frame(width: 72, height: 5)
-                    RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.38)).frame(width: 58, height: 5)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(10)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(10)
+            }
+        }
+        .task(id: fileURL) {
+            if let cached = ThumbnailCache.shared.image(for: fileURL) {
+                image = cached
+                return
+            }
+            let loaded = await Task.detached {
+                NSImage(contentsOf: fileURL)
+            }.value
+            if let loaded {
+                ThumbnailCache.shared.setImage(loaded, for: fileURL)
+                image = loaded
             }
         }
     }
