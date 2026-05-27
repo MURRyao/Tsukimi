@@ -57,7 +57,8 @@ final class NativeScreenCaptureService: ScreenCaptureService {
             throw ScreenCaptureError.nativeCaptureFailed
         }
 
-        let outputImage = try await SCScreenshotManager.captureImage(in: rect)
+        let captureRect = convertToSCKSpace(rect)
+        let outputImage = try await SCScreenshotManager.captureImage(in: captureRect)
         guard let pngData = NSBitmapImageRep(cgImage: outputImage).representation(using: .png, properties: [:]) else {
             throw ScreenCaptureError.nativeCaptureFailed
         }
@@ -74,6 +75,11 @@ final class NativeScreenCaptureService: ScreenCaptureService {
             displayIDs: displayIDs,
             selectedRect: rect
         )
+    }
+
+    private func convertToSCKSpace(_ appKitRect: CGRect) -> CGRect {
+        let primaryHeight = NSScreen.screens.first?.frame.height ?? 0
+        return convertAppKitRectToSCKSpace(appKitRect, primaryHeight: primaryHeight)
     }
 }
 
@@ -257,6 +263,15 @@ private final class CaptureSelectionView: NSView {
             height: abs(currentPoint.y - startPoint.y)
         )
     }
+}
+
+func convertAppKitRectToSCKSpace(_ appKitRect: CGRect, primaryHeight: CGFloat) -> CGRect {
+    CGRect(
+        x: appKitRect.minX,
+        y: primaryHeight - appKitRect.maxY,
+        width: appKitRect.width,
+        height: appKitRect.height
+    )
 }
 
 private extension NSScreen {
