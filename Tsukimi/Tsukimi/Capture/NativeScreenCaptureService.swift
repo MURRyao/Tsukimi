@@ -6,6 +6,7 @@ protocol RegionSelectionService {
     func selectRegion() async throws -> CGRect
 }
 
+@available(macOS 14.0, *)
 final class NativeScreenCaptureService: ScreenCaptureService {
     private let storage: FileStorageService
     private let regionSelectionService: RegionSelectionService
@@ -58,7 +59,23 @@ final class NativeScreenCaptureService: ScreenCaptureService {
         }
 
         let captureRect = convertToSCKSpace(rect)
-        let outputImage = try await SCScreenshotManager.captureImage(in: captureRect)
+
+        let content = try await SCShareableContent.current
+        guard let display = content.displays.first(where: { displayIDs.contains($0.displayID) }) else {
+            throw ScreenCaptureError.nativeCaptureFailed
+        }
+
+        let filter = SCContentFilter(display: display, excludingWindows: [])
+        let config = SCStreamConfiguration()
+        let intersection = display.frame.intersection(captureRect)
+        config.sourceRect = CGRect(
+            x: intersection.minX - display.frame.minX,
+            y: intersection.minY - display.frame.minY,
+            width: intersection.width,
+            height: intersection.height
+        )
+
+        let outputImage = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
         guard let pngData = NSBitmapImageRep(cgImage: outputImage).representation(using: .png, properties: [:]) else {
             throw ScreenCaptureError.nativeCaptureFailed
         }
