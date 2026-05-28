@@ -60,7 +60,7 @@ struct TsukimiShelfView: View {
                     ScrollView(.vertical, showsIndicators: true) {
                         ScreenshotGridView(
                             items: repository.items,
-                            repository: repository
+                            appState: appState
                         )
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -169,7 +169,7 @@ private struct ShelfButton: View {
 
 private struct ScreenshotGridView: View {
     let items: [ScreenshotItem]
-    @ObservedObject var repository: ScreenshotRepository
+    @ObservedObject var appState: AppState
 
     private let columns = Array(
         repeating: GridItem(
@@ -186,13 +186,13 @@ private struct ScreenshotGridView: View {
                 ScreenshotCardView(
                     item: item,
                     deleteAction: {
-                        try? repository.delete(item)
+                        appState.deleteScreenshot(item)
                     },
                     pinAction: {
-                        try? repository.togglePinned(item)
+                        appState.togglePin(item)
                     },
                     dragStarted: {
-                        try? repository.updateLastDragged(item)
+                        appState.updateLastDragged(item)
                     }
                 )
             }

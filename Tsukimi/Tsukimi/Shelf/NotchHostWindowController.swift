@@ -37,6 +37,10 @@ final class NotchHostWindowController {
         collapse()
     }
 
+    func hideCompletely() {
+        panel?.orderOut(nil)
+    }
+
     private func expand() {
         model.presentation = .expanded
         presentationChanged(true)
@@ -154,7 +158,6 @@ private final class NotchHostModel: ObservableObject {
     enum Presentation {
         case closed
         case peeking
-        case dragTarget
         case expanded
     }
 
@@ -213,7 +216,7 @@ private struct NotchHostView: View {
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
 
-                Image(systemName: model.presentation == .dragTarget ? "tray.and.arrow.down.fill" : "chevron.down")
+                Image(systemName: "chevron.down")
                     .font(.system(size: 10.5, weight: .bold))
                     .foregroundStyle(.white.opacity(0.72))
             }
@@ -231,18 +234,8 @@ private struct NotchHostView: View {
         .offset(y: dragOffset)
         .contentShape(Rectangle())
         .onHover { isHovering in
-            guard model.presentation != .expanded, model.presentation != .dragTarget else { return }
+            guard model.presentation != .expanded else { return }
             model.presentation = isHovering ? .peeking : .closed
-        }
-        .onDrop(of: [.fileURL, .image], isTargeted: Binding(
-            get: { model.presentation == .dragTarget },
-            set: { isTargeted in
-                guard model.presentation != .expanded else { return }
-                model.presentation = isTargeted ? .dragTarget : .closed
-            }
-        )) { _ in
-            openAction()
-            return false
         }
         .gesture(
             DragGesture(minimumDistance: 0)
@@ -280,14 +273,13 @@ private struct NotchHostView: View {
             return TsukimiDesign.Shelf.notchWidth
         case .peeking:
             return TsukimiDesign.Shelf.handleWidth
-        case .dragTarget:
-            return TsukimiDesign.Shelf.handleWidth + 34
+
         case .expanded:
             return TsukimiDesign.Shelf.handleWidth
         }
     }
 
     private var statusColor: Color {
-        model.presentation == .dragTarget ? .white : TsukimiDesign.ColorToken.brandAccent
+        TsukimiDesign.ColorToken.brandAccent
     }
 }

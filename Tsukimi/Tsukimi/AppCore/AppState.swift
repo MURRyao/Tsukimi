@@ -19,6 +19,7 @@ final class AppState: ObservableObject {
     private var autoHideTask: Task<Void, Never>?
     private var cleanupTimer: AnyCancellable?
     private var cancellables: Set<AnyCancellable> = []
+    private var isCapturing = false
 
     init(
         settings: SettingsStore = SettingsStore(),
@@ -51,8 +52,15 @@ final class AppState: ObservableObject {
                 repository.lastLoadWarning = nil
             }
             try repository.cleanupExpired()
+        } catch {
+            presentError(error)
+            return
+        }
+
+        showNotchHandle()
+
+        do {
             try registerHotKeys()
-            showNotchHandle()
             startCleanupTimer()
         } catch {
             presentError(error)
@@ -61,19 +69,29 @@ final class AppState: ObservableObject {
 
     func captureArea() {
         Task { @MainActor in
+            guard !isCapturing else { return }
+            isCapturing = true
+            defer { isCapturing = false }
+
+            notchHostWindowController.hideCompletely()
+            try? await Task.sleep(for: .milliseconds(180))
+
+            defer {
+                if settings.showShelfAfterCapture {
+                    showShelf()
+                } else {
+                    showNotchHandle()
+                }
+            }
+
             do {
-                hideShelf()
-                try? await Task.sleep(for: .milliseconds(180))
                 let captureResult = try await captureService.captureArea()
                 try repository.addCapturedScreenshot(captureResult)
                 if settings.copyImageOnCapture {
                     DragItemProvider.copyImageToPasteboard(for: captureResult.fileURL)
                 }
-                if settings.showShelfAfterCapture {
-                    showShelf()
-                }
             } catch ScreenCaptureError.cancelled {
-                return
+                // No-op; UI restore handled by defer
             } catch {
                 presentError(error)
             }
@@ -108,6 +126,33 @@ final class AppState: ObservableObject {
     func clearUnpinnedScreenshots() {
         do {
             try repository.clearUnpinned()
+        } catch {
+            presentError(error)
+        }
+    }
+
+    @MainActor
+    func deleteScreenshot(_ item: ScreenshotItem) {
+        do {
+            try repository.delete(item)
+        } catch {
+            presentError(error)
+        }
+    }
+
+    @MainActor
+    func togglePin(_ item: ScreenshotItem) {
+        do {
+            try repository.togglePinned(item)
+        } catch {
+            presentError(error)
+        }
+    }
+
+    @MainActor
+    func updateLastDragged(_ item: ScreenshotItem) {
+        do {
+            try repository.updateLastDragged(item)
         } catch {
             presentError(error)
         }
@@ -169,6 +214,7 @@ final class AppState: ObservableObject {
             .sink { [weak self] _ in
                 try? self?.repository.cleanupExpired()
             }
+
     }
 
     private func registerHotKeys() throws {

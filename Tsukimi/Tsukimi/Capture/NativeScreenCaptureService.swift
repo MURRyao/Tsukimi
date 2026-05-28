@@ -33,7 +33,7 @@ final class NativeScreenCaptureService: ScreenCaptureService {
             return try await capture(selectedRect: selectedRect)
         } catch {
             if let fallback {
-                return try await fallback.captureArea()
+                return try await fallback.captureArea(rect: selectedRect)
             }
 
             throw error
