@@ -31,8 +31,8 @@ final class AppState: ObservableObject {
             fallback: ScreencaptureScreenCaptureService(storage: storage)
         )
 
-        settings.objectWillChange
-            .sink { [weak self] _ in
+        settings.storageSettingsChanged
+            .sink { [weak self] in
                 do {
                     try self?.repository.applyStoragePolicies()
                     try self?.repository.cleanupExpired()

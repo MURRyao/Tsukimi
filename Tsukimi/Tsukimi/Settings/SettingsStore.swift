@@ -2,6 +2,8 @@ import Combine
 import Foundation
 
 final class SettingsStore: ObservableObject {
+    let storageSettingsChanged = PassthroughSubject<Void, Never>()
+
     @Published var showShelfAfterCapture: Bool {
         didSet { defaults.set(showShelfAfterCapture, forKey: Key.showShelfAfterCapture) }
     }
@@ -15,11 +17,17 @@ final class SettingsStore: ObservableObject {
     }
 
     @Published var maxUnpinnedScreenshots: Int {
-        didSet { defaults.set(maxUnpinnedScreenshots, forKey: Key.maxUnpinnedScreenshots) }
+        didSet {
+            defaults.set(maxUnpinnedScreenshots, forKey: Key.maxUnpinnedScreenshots)
+            storageSettingsChanged.send()
+        }
     }
 
     @Published var deleteUnpinnedAfterHours: Int {
-        didSet { defaults.set(deleteUnpinnedAfterHours, forKey: Key.deleteUnpinnedAfterHours) }
+        didSet {
+            defaults.set(deleteUnpinnedAfterHours, forKey: Key.deleteUnpinnedAfterHours)
+            storageSettingsChanged.send()
+        }
     }
 
     @Published var copyImageOnCapture: Bool {
