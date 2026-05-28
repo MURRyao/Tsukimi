@@ -17,6 +17,7 @@ final class AppState: ObservableObject {
     )
     private var isShelfExpanded = false
     private var autoHideTask: Task<Void, Never>?
+    private var cleanupTimer: AnyCancellable?
     private var cancellables: Set<AnyCancellable> = []
 
     init(
@@ -29,14 +30,30 @@ final class AppState: ObservableObject {
             storage: storage,
             fallback: ScreencaptureScreenCaptureService(storage: storage)
         )
+
+        settings.objectWillChange
+            .sink { [weak self] _ in
+                do {
+                    try self?.repository.applyStoragePolicies()
+                    try self?.repository.cleanupExpired()
+                } catch {
+                    self?.presentError(error)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     func start() {
         do {
             try repository.load()
+            if let warning = repository.lastLoadWarning {
+                presentError(NSError(domain: "Tsukimi", code: 0, userInfo: [NSLocalizedDescriptionKey: warning]))
+                repository.lastLoadWarning = nil
+            }
             try repository.cleanupExpired()
             try registerHotKeys()
             showNotchHandle()
+            startCleanupTimer()
         } catch {
             presentError(error)
         }
@@ -60,10 +77,12 @@ final class AppState: ObservableObject {
             } catch {
                 presentError(error)
             }
+            try? repository.cleanupExpired()
         }
     }
 
     func showShelf() {
+        try? repository.cleanupExpired()
         notchHostWindowController.show()
         scheduleAutoHideIfNeeded()
     }
@@ -142,6 +161,14 @@ final class AppState: ObservableObject {
                 self?.hideShelf()
             }
         }
+    }
+
+    private func startCleanupTimer() {
+        cleanupTimer = Timer.publish(every: 300, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                try? self?.repository.cleanupExpired()
+            }
     }
 
     private func registerHotKeys() throws {

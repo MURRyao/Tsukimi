@@ -55,9 +55,13 @@ enum DragItemProvider {
 
         do {
             if FileManager.default.fileExists(atPath: destinationURL.path) {
-                try FileManager.default.removeItem(at: destinationURL)
+                let tempURL = destinationURL.deletingLastPathComponent()
+                    .appendingPathComponent(".\(destinationURL.lastPathComponent).\(UUID().uuidString).tmp")
+                try FileManager.default.copyItem(at: fileURL, to: tempURL)
+                _ = try FileManager.default.replaceItemAt(destinationURL, withItemAt: tempURL)
+            } else {
+                try FileManager.default.copyItem(at: fileURL, to: destinationURL)
             }
-            try FileManager.default.copyItem(at: fileURL, to: destinationURL)
         } catch {
             NSSound.beep()
         }
