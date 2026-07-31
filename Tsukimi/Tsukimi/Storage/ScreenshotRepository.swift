@@ -3,6 +3,7 @@ import Foundation
 
 final class ScreenshotRepository: ObservableObject {
     @Published private(set) var items: [ScreenshotItem] = []
+    @Published var lastLoadWarning: String?
 
     private let storage: FileStorageService
     private let settings: SettingsStore
@@ -34,8 +35,26 @@ final class ScreenshotRepository: ObservableObject {
         }
 
         let data = try Data(contentsOf: storage.manifestURL)
-        let manifest = try decoder.decode(ScreenshotManifest.self, from: data)
-        items = sorted(manifest.items)
+
+        do {
+            let manifest = try decoder.decode(ScreenshotManifest.self, from: data)
+            var loadedItems = sorted(manifest.items)
+            let missing = loadedItems.filter { !FileManager.default.fileExists(atPath: $0.filePath) }
+            if !missing.isEmpty {
+                loadedItems.removeAll { item in missing.contains(where: { $0.id == item.id }) }
+                items = loadedItems
+                try save()
+            } else {
+                items = loadedItems
+            }
+        } catch {
+            let timestamp = ISO8601DateFormatter().string(from: Date())
+            let backupURL = storage.manifestURL.deletingLastPathComponent()
+                .appendingPathComponent("manifest.backup.\(timestamp).json")
+            try? FileManager.default.moveItem(at: storage.manifestURL, to: backupURL)
+            items = []
+            lastLoadWarning = "Your screenshot list was corrupted and has been reset. A backup was saved."
+        }
     }
 
     func addCapturedScreenshot(at fileURL: URL) throws {
@@ -109,6 +128,33 @@ final class ScreenshotRepository: ObservableObject {
         }
 
         try save()
+    }
+
+    func applyStoragePolicies() throws {
+        var changed = false
+
+        for index in items.indices {
+            if !items[index].isPinned {
+                let newExpiresAt = items[index].createdAt.addingTimeInterval(settings.unpinnedLifetime)
+                if items[index].expiresAt != newExpiresAt {
+                    items[index].expiresAt = newExpiresAt
+                    changed = true
+                }
+            }
+        }
+
+        let countBeforeEnforce = items.count
+        try enforceMaxUnpinnedCount()
+        if items.count != countBeforeEnforce {
+            changed = true
+        }
+
+        let countBeforeCleanup = items.count
+        try cleanupExpired()
+
+        if changed && items.count == countBeforeCleanup {
+            try save()
+        }
     }
 
     private func enforceMaxUnpinnedCount() throws {

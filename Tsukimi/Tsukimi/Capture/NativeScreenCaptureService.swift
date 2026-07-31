@@ -6,6 +6,7 @@ protocol RegionSelectionService {
     func selectRegion() async throws -> CGRect
 }
 
+@available(macOS 14.0, *)
 final class NativeScreenCaptureService: ScreenCaptureService {
     private let storage: FileStorageService
     private let regionSelectionService: RegionSelectionService
@@ -33,7 +34,7 @@ final class NativeScreenCaptureService: ScreenCaptureService {
             return try await capture(selectedRect: selectedRect)
         } catch {
             if let fallback {
-                return try await fallback.captureArea()
+                return try await fallback.captureArea(rect: selectedRect)
             }
 
             throw error
@@ -57,7 +58,24 @@ final class NativeScreenCaptureService: ScreenCaptureService {
             throw ScreenCaptureError.nativeCaptureFailed
         }
 
-        let outputImage = try await SCScreenshotManager.captureImage(in: rect)
+        let captureRect = convertToSCKSpace(rect)
+
+        let content = try await SCShareableContent.current
+        guard let display = content.displays.first(where: { displayIDs.contains($0.displayID) }) else {
+            throw ScreenCaptureError.nativeCaptureFailed
+        }
+
+        let filter = SCContentFilter(display: display, excludingWindows: [])
+        let config = SCStreamConfiguration()
+        let intersection = display.frame.intersection(captureRect)
+        config.sourceRect = CGRect(
+            x: intersection.minX - display.frame.minX,
+            y: intersection.minY - display.frame.minY,
+            width: intersection.width,
+            height: intersection.height
+        )
+
+        let outputImage = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
         guard let pngData = NSBitmapImageRep(cgImage: outputImage).representation(using: .png, properties: [:]) else {
             throw ScreenCaptureError.nativeCaptureFailed
         }
@@ -74,6 +92,11 @@ final class NativeScreenCaptureService: ScreenCaptureService {
             displayIDs: displayIDs,
             selectedRect: rect
         )
+    }
+
+    private func convertToSCKSpace(_ appKitRect: CGRect) -> CGRect {
+        let primaryHeight = NSScreen.screens.first?.frame.height ?? 0
+        return convertAppKitRectToSCKSpace(appKitRect, primaryHeight: primaryHeight)
     }
 }
 
@@ -257,6 +280,15 @@ private final class CaptureSelectionView: NSView {
             height: abs(currentPoint.y - startPoint.y)
         )
     }
+}
+
+func convertAppKitRectToSCKSpace(_ appKitRect: CGRect, primaryHeight: CGFloat) -> CGRect {
+    CGRect(
+        x: appKitRect.minX,
+        y: primaryHeight - appKitRect.maxY,
+        width: appKitRect.width,
+        height: appKitRect.height
+    )
 }
 
 private extension NSScreen {

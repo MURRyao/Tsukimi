@@ -7,28 +7,34 @@ enum DragItemProvider {
         let provider = NSItemProvider(contentsOf: fileURL) ?? NSItemProvider()
         provider.suggestedName = fileURL.deletingPathExtension().lastPathComponent
 
-        if let data = try? Data(contentsOf: fileURL) {
-            provider.registerDataRepresentation(forTypeIdentifier: UTType.png.identifier, visibility: .all) { completion in
+        provider.registerDataRepresentation(forTypeIdentifier: UTType.png.identifier, visibility: .all) { completion in
+            Task.detached {
+                let data = try? Data(contentsOf: fileURL)
                 completion(data, nil)
-                return nil
             }
-
-            provider.registerDataRepresentation(forTypeIdentifier: UTType.image.identifier, visibility: .all) { completion in
-                completion(data, nil)
-                return nil
-            }
-
-            provider.registerDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier, visibility: .all) { completion in
-                completion(fileURL.absoluteString.data(using: .utf8), nil)
-                return nil
-            }
+            return nil
         }
 
-        if let image = NSImage(contentsOf: fileURL), let tiffData = image.tiffRepresentation {
-            provider.registerDataRepresentation(forTypeIdentifier: UTType.tiff.identifier, visibility: .all) { completion in
-                completion(tiffData, nil)
-                return nil
+        provider.registerDataRepresentation(forTypeIdentifier: UTType.image.identifier, visibility: .all) { completion in
+            Task.detached {
+                let data = try? Data(contentsOf: fileURL)
+                completion(data, nil)
             }
+            return nil
+        }
+
+        provider.registerDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier, visibility: .all) { completion in
+            completion(fileURL.absoluteString.data(using: .utf8), nil)
+            return nil
+        }
+
+        provider.registerDataRepresentation(forTypeIdentifier: UTType.tiff.identifier, visibility: .all) { completion in
+            Task.detached {
+                let image = NSImage(contentsOf: fileURL)
+                let tiffData = image?.tiffRepresentation
+                completion(tiffData, nil)
+            }
+            return nil
         }
 
         return provider
@@ -55,9 +61,13 @@ enum DragItemProvider {
 
         do {
             if FileManager.default.fileExists(atPath: destinationURL.path) {
-                try FileManager.default.removeItem(at: destinationURL)
+                let tempURL = destinationURL.deletingLastPathComponent()
+                    .appendingPathComponent(".\(destinationURL.lastPathComponent).\(UUID().uuidString).tmp")
+                try FileManager.default.copyItem(at: fileURL, to: tempURL)
+                _ = try FileManager.default.replaceItemAt(destinationURL, withItemAt: tempURL)
+            } else {
+                try FileManager.default.copyItem(at: fileURL, to: destinationURL)
             }
-            try FileManager.default.copyItem(at: fileURL, to: destinationURL)
         } catch {
             NSSound.beep()
         }

@@ -86,6 +86,34 @@ struct TsukimiTests {
         #expect(fileURL.lastPathComponent.hasPrefix("\(AppBrand.screenshotFilenamePrefix)-"))
     }
 
+    @Test func convertAppKitRectToSCKSpaceFlipsYAroundPrimaryHeight() {
+        let primaryHeight: CGFloat = 1000
+
+        let bottomRect = CGRect(x: 100, y: 100, width: 200, height: 150)
+        let bottomConverted = convertAppKitRectToSCKSpace(bottomRect, primaryHeight: primaryHeight)
+        #expect(bottomConverted == CGRect(x: 100, y: 750, width: 200, height: 150))
+
+        let topRect = CGRect(x: 100, y: 800, width: 200, height: 150)
+        let topConverted = convertAppKitRectToSCKSpace(topRect, primaryHeight: primaryHeight)
+        #expect(topConverted == CGRect(x: 100, y: 50, width: 200, height: 150))
+
+        let fullHeightRect = CGRect(x: 0, y: 0, width: 1920, height: 1000)
+        let fullHeightConverted = convertAppKitRectToSCKSpace(fullHeightRect, primaryHeight: primaryHeight)
+        #expect(fullHeightConverted == CGRect(x: 0, y: 0, width: 1920, height: 1000))
+    }
+
+    @Test func convertAppKitRectToSCKSpaceHandlesSecondaryDisplays() {
+        let primaryHeight: CGFloat = 1000
+
+        let abovePrimary = CGRect(x: 200, y: 1200, width: 300, height: 200)
+        let aboveConverted = convertAppKitRectToSCKSpace(abovePrimary, primaryHeight: primaryHeight)
+        #expect(aboveConverted == CGRect(x: 200, y: -400, width: 300, height: 200))
+
+        let belowPrimary = CGRect(x: 200, y: -300, width: 300, height: 200)
+        let belowConverted = convertAppKitRectToSCKSpace(belowPrimary, primaryHeight: primaryHeight)
+        #expect(belowConverted == CGRect(x: 200, y: 1100, width: 300, height: 200))
+    }
+
     @Test func dragProviderExposesFileURLAndImageRepresentations() async throws {
         let fixture = try makeRepositoryFixture()
         let imageURL = try makePNG(in: fixture.rootURL)
