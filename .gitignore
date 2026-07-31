@@ -13,5 +13,10 @@ build/
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
 
-docs/
+# Most material under docs/ is generated locally. The Pages entry point and its
+# media are intentional, versioned site content.
+docs/*
+!docs/index.html
+!docs/media/
+!docs/media/**
 Tsukimi-AppIcon-macOS/

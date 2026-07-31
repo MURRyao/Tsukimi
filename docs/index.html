@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Tsukimi is a calm screenshot shelf for macOS.">
+    <meta name="theme-color" content="#10121c">
+    <title>Tsukimi — A calm screenshot shelf for macOS</title>
+    <link rel="icon" href="media/tsukimi-icon.png">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+      :root {
+        color-scheme: dark;
+        --ink: #10121c;
+        --ink-soft: #171b29;
+        --paper: #f6f6f8;
+        --mist: #b6bac8;
+        --line: rgba(255, 255, 255, .14);
+        --blue: #5a86ff;
+        --blue-pale: #b7caff;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--ink);
+        color: var(--paper);
+        font-family: Manrope, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      a { color: inherit; text-decoration: none; }
+      .page { overflow: hidden; }
+      .nav {
+        align-items: center;
+        display: flex;
+        height: 82px;
+        justify-content: space-between;
+        margin: 0 auto;
+        max-width: 1180px;
+        padding: 0 28px;
+        position: relative;
+        z-index: 3;
+      }
+      .brand { align-items: center; display: inline-flex; font-size: 16px; font-weight: 800; gap: 10px; letter-spacing: -.04em; }
+      .brand img { border-radius: 8px; height: 30px; width: 30px; }
+      .nav-link { color: var(--mist); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: .02em; }
+      .hero {
+        min-height: calc(100svh - 82px);
+        padding: 72px 28px 60px;
+        position: relative;
+      }
+      .hero::before {
+        background: radial-gradient(circle, rgba(90, 134, 255, .32) 0, rgba(90, 134, 255, .05) 40%, transparent 68%);
+        content: "";
+        height: min(66vw, 850px);
+        left: 42%;
+        position: absolute;
+        top: -27%;
+        width: min(66vw, 850px);
+      }
+      .hero-inner { margin: 0 auto; max-width: 1124px; position: relative; }
+      .eyebrow { color: var(--blue-pale); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: .12em; margin: 0 0 20px; text-transform: uppercase; }
+      h1 { font-size: clamp(64px, 12vw, 160px); letter-spacing: -.095em; line-height: .79; margin: 0; max-width: 790px; position: relative; z-index: 1; }
+      .hero-copy { color: var(--mist); font-size: clamp(17px, 2vw, 21px); line-height: 1.55; margin: 38px 0 28px; max-width: 448px; }
+      .actions { align-items: center; display: flex; flex-wrap: wrap; gap: 20px; }
+      .button { background: var(--paper); border-radius: 99px; color: var(--ink); font-size: 14px; font-weight: 800; padding: 14px 21px; transition: transform .2s ease, background .2s ease; }
+      .button:hover { background: #fff; transform: translateY(-2px); }
+      .text-link { border-bottom: 1px solid var(--line); color: var(--mist); font-family: "DM Mono", monospace; font-size: 11px; padding-bottom: 5px; }
+      .app-icon {
+        animation: float 7s ease-in-out infinite;
+        filter: drop-shadow(0 38px 38px rgba(0,0,0,.36));
+        max-width: min(47vw, 560px);
+        position: absolute;
+        right: -4%;
+        top: 2%;
+        transform: rotate(8deg);
+        width: 46%;
+      }
+      .hero-note { color: #72778a; display: block; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .07em; margin-top: 64px; text-transform: uppercase; }
+      .feature {
+        background: var(--paper);
+        color: var(--ink);
+        min-height: 770px;
+        padding: 130px 28px;
+      }
+      .feature-inner { display: grid; gap: 70px; grid-template-columns: .8fr 1.2fr; margin: 0 auto; max-width: 1124px; }
+      .section-label { color: #687086; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: .1em; margin: 0 0 17px; text-transform: uppercase; }
+      h2 { font-size: clamp(40px, 5.8vw, 76px); letter-spacing: -.075em; line-height: .95; margin: 0; }
+      .section-copy { color: #596074; font-size: 17px; line-height: 1.65; margin: 27px 0 0; max-width: 390px; }
+      .capture-stage { min-height: 460px; position: relative; }
+      .selection {
+        border: 2px solid #4f7ffa;
+        bottom: 47px;
+        left: 5%;
+        position: absolute;
+        right: 4%;
+        top: 22px;
+      }
+      .selection::after, .selection::before { background: #4f7ffa; content: ""; height: 8px; position: absolute; width: 8px; }
+      .selection::before { left: -5px; top: -5px; }
+      .selection::after { bottom: -5px; right: -5px; }
+      .capture-pill { background: var(--ink); border-radius: 99px; bottom: 0; color: var(--paper); font-family: "DM Mono", monospace; font-size: 11px; left: 50%; padding: 13px 17px; position: absolute; transform: translateX(-50%); white-space: nowrap; }
+      .star { color: #f5af36; font-size: 46px; line-height: 1; position: absolute; }
+      .star.one { left: 14%; top: 11%; } .star.two { bottom: 18%; right: 7%; }
+      .details { border-top: 1px solid #d6d8df; display: grid; grid-template-columns: repeat(3, 1fr); margin: 78px auto 0; max-width: 1124px; }
+      .detail { border-right: 1px solid #d6d8df; padding: 25px 25px 0 0; }
+      .detail + .detail { padding-left: 25px; }
+      .detail:last-child { border-right: 0; }
+      .detail b { display: block; font-size: 15px; letter-spacing: -.03em; margin-bottom: 8px; }
+      .detail span { color: #687086; font-size: 13px; line-height: 1.5; }
+      .shelf { padding: 130px 28px; }
+      .shelf-inner { margin: 0 auto; max-width: 1124px; }
+      .shelf-header { align-items: end; display: flex; justify-content: space-between; margin-bottom: 58px; }
+      .shelf-header p { color: var(--mist); font-size: 16px; line-height: 1.55; margin: 0; max-width: 350px; }
+      .product-shot { border-radius: 24px; box-shadow: 0 30px 80px rgba(0, 0, 0, .28); display: block; height: auto; outline: 1px solid rgba(255, 255, 255, .14); width: 100%; }
+      .product-caption { color: var(--mist); display: flex; font-family: "DM Mono", monospace; font-size: 10px; justify-content: space-between; letter-spacing: .06em; margin: 16px 2px 0; text-transform: uppercase; }
+      .release { border-top: 1px solid var(--line); padding: 130px 28px 40px; }
+      .release-inner { margin: 0 auto; max-width: 1124px; }
+      .release h2 { max-width: 680px; }
+      .release-row { align-items: end; display: flex; justify-content: space-between; margin-top: 46px; }
+      .release-row p { color: var(--mist); font-size: 15px; line-height: 1.6; margin: 0; max-width: 390px; }
+      footer { color: #777d8f; display: flex; font-family: "DM Mono", monospace; font-size: 10px; justify-content: space-between; margin: 110px auto 0; max-width: 1124px; text-transform: uppercase; }
+      @keyframes float { 50% { transform: translateY(-18px) rotate(5deg); } }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+      @media (max-width: 720px) {
+        .nav, .hero, .feature, .shelf, .release { padding-left: 20px; padding-right: 20px; }
+        .hero { min-height: 740px; padding-top: 44px; }
+        h1 { font-size: clamp(65px, 19vw, 110px); }
+        .app-icon { max-width: none; right: -12%; top: 315px; width: 82%; }
+        .hero-note { margin-top: 48px; }
+        .feature-inner { grid-template-columns: 1fr; }
+        .capture-stage { min-height: 300px; }
+        .details { grid-template-columns: 1fr; margin-top: 45px; }
+        .detail, .detail + .detail { border-bottom: 1px solid #d6d8df; border-right: 0; padding: 20px 0; }
+        .shelf-header, .release-row { align-items: start; flex-direction: column; gap: 24px; }
+        .product-shot { border-radius: 14px; }
+        .product-caption { font-size: 9px; }
+        footer { margin-top: 80px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="#top"><img src="media/tsukimi-icon.png" alt="Tsukimi app icon">Tsukimi</a>
+        <a class="nav-link" href="https://github.com/MURRyao/Tsukimi" target="_blank" rel="noreferrer">GitHub ↗</a>
+      </nav>
+
+      <header class="hero" id="top">
+        <div class="hero-inner">
+          <p class="eyebrow">Screenshot shelf for macOS</p>
+          <h1>Tsukimi</h1>
+          <img class="app-icon" src="media/tsukimi-icon.png" alt="Tsukimi app icon">
+          <p class="hero-copy">Capture what matters, keep it close, and let it leave when you are done. A small, calm place for the screenshots between your work.</p>
+          <div class="actions">
+            <a class="button" href="https://github.com/MURRyao/Tsukimi/releases">Get Tsukimi</a>
+            <a class="text-link" href="#workflow">See how it works</a>
+          </div>
+          <span class="hero-note">macOS 14.0 or later</span>
+        </div>
+      </header>
+
+      <section class="feature" id="workflow">
+        <div class="feature-inner">
+          <div>
+            <p class="section-label">01 — Capture</p>
+            <h2>Pick an area.<br>Stay in flow.</h2>
+            <p class="section-copy">Use a global shortcut, draw the region you need, and keep working. Tsukimi handles the screenshot without turning your desktop into a dumping ground.</p>
+          </div>
+          <div class="capture-stage" aria-label="Illustration of area selection">
+            <span class="star one">✦</span><span class="star two">✦</span>
+            <div class="selection"></div>
+            <div class="capture-pill">⌃⌥S &nbsp; Capture Area</div>
+          </div>
+        </div>
+        <div class="details">
+          <div class="detail"><b>Global shortcuts</b><span>Capture or reveal the Shelf from anywhere.</span></div>
+          <div class="detail"><b>Multi-display aware</b><span>Designed for selected areas across your macOS setup.</span></div>
+          <div class="detail"><b>Private by default</b><span>Keep temporary captures out of the Desktop clutter.</span></div>
+        </div>
+      </section>
+
+      <section class="shelf">
+        <div class="shelf-inner">
+          <div class="shelf-header">
+            <div><p class="section-label">02 — Keep nearby</p><h2>A shelf, not a pile.</h2></div>
+            <p>Your latest captures sit at the edge of your screen: ready to copy, drag, pin, or dismiss at the right moment.</p>
+          </div>
+          <img class="product-shot" src="media/shelf.png" alt="Tsukimi Shelf showing five temporary screenshots with Capture Area and Clear Unpinned controls">
+          <div class="product-caption"><span>Tsukimi Shelf</span><span>Temporary captures, ready when needed</span></div>
+        </div>
+      </section>
+
+      <section class="release">
+        <div class="release-inner">
+          <p class="section-label">Tsukimi 1.0</p>
+          <h2>Make room for the work that matters.</h2>
+          <div class="release-row">
+            <p>Tsukimi is an independent macOS application. Download the latest signed release from GitHub.</p>
+            <a class="button" href="https://github.com/MURRyao/Tsukimi/releases">View releases</a>
+          </div>
+          <footer><span>Tsukimi</span><span>Made for macOS</span><span>© 2026</span></footer>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
